@@ -40,13 +40,50 @@ var __importDefault = (this && this.__importDefault) || function (mod) {
 };
 Object.defineProperty(exports, "__esModule", { value: true });
 var express_1 = __importDefault(require("express"));
+var user_model_1 = __importDefault(require("../Models/user.model"));
+var express_validator_1 = require("express-validator");
+var bcrypt_1 = __importDefault(require("bcrypt"));
+var dotenv_1 = __importDefault(require("dotenv"));
+var session_1 = __importDefault(require("../Connections/session"));
+var auth_1 = require("../Controllers/auth");
+dotenv_1.default.config();
 var loginRouter = express_1.default.Router();
+loginRouter.use(session_1.default);
 loginRouter.get('/', function (req, res) {
     /* Servire il login.html statico */
 });
-loginRouter.post('/', function (req, res) { return __awaiter(void 0, void 0, void 0, function () {
-    return __generator(this, function (_a) {
-        return [2 /*return*/];
+loginRouter.post('/', auth_1.doesNotRequireAuth, (0, express_validator_1.body)('email').isEmail().normalizeEmail().withMessage('Email is not valid!'), (0, express_validator_1.body)('password').isLength({ min: Number(process.env.MIN_PASS_LEN) }).trim().escape().withMessage('Password is not valid!'), function (req, res) { return __awaiter(void 0, void 0, void 0, function () {
+    var errors, _a, email, password, user, comparePsw, err_1;
+    return __generator(this, function (_b) {
+        switch (_b.label) {
+            case 0:
+                errors = (0, express_validator_1.validationResult)(req);
+                if (!errors.isEmpty())
+                    return [2 /*return*/, res.status(400).json({ errors: errors.array() })];
+                _a = req.body, email = _a.email, password = _a.password;
+                _b.label = 1;
+            case 1:
+                _b.trys.push([1, 4, , 5]);
+                return [4 /*yield*/, user_model_1.default.findOne({ email: email })];
+            case 2:
+                user = _b.sent();
+                if (!user)
+                    return [2 /*return*/, res.status(404).json({ message: "Email not found!" })];
+                return [4 /*yield*/, bcrypt_1.default.compare(password, user.password)];
+            case 3:
+                comparePsw = _b.sent();
+                if (!comparePsw)
+                    return [2 /*return*/, res.status(400).json({ message: "Incorrect password !" })];
+                req.session.username = user.username;
+                req.session.email = user.email;
+                req.session.isAdmin = user.isAdmin;
+                //TODO: redirect dashboard 
+                return [2 /*return*/, res.status(200).json({ message: "Logged in", user: user })];
+            case 4:
+                err_1 = _b.sent();
+                return [2 /*return*/, res.status(500).json({ error: err_1 })];
+            case 5: return [2 /*return*/];
+        }
     });
 }); });
 exports.default = loginRouter;
