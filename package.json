@@ -1,0 +1,32 @@
+{
+  "name": "banane-backend",
+  "version": "1.0.0",
+  "description": "Backend side of Bananahahaha project",
+  "main": "./dist/index.js",
+  "scripts": {
+    "test": "echo \"Error: no test specified\" && exit 1",
+    "start": "tsc && node build/app"
+  },
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/stefanomitello/banane-backend.git"
+  },
+  "keywords": [],
+  "author": "",
+  "license": "ISC",
+  "bugs": {
+    "url": "https://github.com/stefanomitello/banane-backend/issues"
+  },
+  "homepage": "https://github.com/stefanomitello/banane-backend#readme",
+  "dependencies": {
+    "async-mqtt": "^2.6.1",
+    "express": "^4.17.1",
+    "mongoose": "^6.0.13",
+    "redis": "^3.1.2",
+    "socket.io": "^4.4.0"
+  },
+  "devDependencies": {
+    "@types/express": "^4.17.13",
+    "@types/redis": "^2.8.32"
+  }
+}
