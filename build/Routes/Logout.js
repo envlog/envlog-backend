@@ -14,5 +14,6 @@ logoutRouter.post('/', auth_1.requiresAuth, function (req, res) {
             console.log(err);
     });
     return res.status(200).json({ message: "Logged out!" });
+    // TODO: Redirect a login
 });
 exports.default = logoutRouter;

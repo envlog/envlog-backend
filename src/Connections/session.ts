@@ -1,6 +1,4 @@
-import dotenv from 'dotenv';
 import expS from 'express-session';
-dotenv.config();
 
 declare module 'express-session' {
     export interface SessionData {

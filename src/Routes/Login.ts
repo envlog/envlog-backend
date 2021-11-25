@@ -2,21 +2,24 @@ import express, { Request, Response } from 'express';
 import User from '../Models/user.model';
 import { body, validationResult } from 'express-validator';
 import bcrypt from 'bcrypt';
-import dotenv from 'dotenv';
 import session from '../Connections/session';
-import { doesNotRequireAuth } from '../Controllers/auth';
-dotenv.config();
+import { requiresNoAuth } from '../Controllers/auth';
 
 const loginRouter = express.Router();
 loginRouter.use(session);
 
-loginRouter.get('/', (req, res) => {
-    /* Servire il login.html statico */
-});
+loginRouter.get(
+    '/', 
+    requiresNoAuth, 
+    (req, res) => {
+        return res.status(200).json({ message: "Ok" });
+        /* TODO: Servire il login.html statico */
+    }
+);
 
 loginRouter.post(
     '/', 
-    doesNotRequireAuth,
+    requiresNoAuth,
     body('email').isEmail().normalizeEmail().withMessage('Email is not valid!'),
     body('password').isLength({ min: Number(process.env.MIN_PASS_LEN) }).trim().escape().withMessage('Password is not valid!'),
     async (req: Request<{}, {}, { email: string, password: string }>, res: Response) => {
@@ -25,6 +28,7 @@ loginRouter.post(
         if (!errors.isEmpty()) return res.status(400).json({ errors: errors.array() });
         
         const { email, password } = req.body;
+        
         try {
             let user = await User.findOne({ email: email });
             if (!user) return res.status(404).json({ message: "Email not found!" });
@@ -33,11 +37,10 @@ loginRouter.post(
             req.session.username = user.username;
             req.session.email = user.email;
             req.session.isAdmin = user.isAdmin;
-            //TODO: redirect dashboard 
-            return res.status(200).json({ message: "Logged in", user: user });
-
-        } catch (err: any) {
-            return res.status(500).json({ error: err });
+            // TODO: Redirect alla dashboard
+            return res.status(200).json({ message: "Logged in", user });
+        } catch (error: any) {
+            return res.status(500).json({ error });
         } 
     }
 );

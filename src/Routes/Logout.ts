@@ -13,6 +13,7 @@ logoutRouter.post('/', requiresAuth, (req: Request, res: Response) => {
     });
 
     return res.status(200).json({ message: "Logged out!" });
+    // TODO: Redirect a login
 });
 
 

@@ -43,17 +43,16 @@ var express_1 = __importDefault(require("express"));
 var user_model_1 = __importDefault(require("../Models/user.model"));
 var express_validator_1 = require("express-validator");
 var bcrypt_1 = __importDefault(require("bcrypt"));
-var dotenv_1 = __importDefault(require("dotenv"));
 var session_1 = __importDefault(require("../Connections/session"));
 var auth_1 = require("../Controllers/auth");
-dotenv_1.default.config();
 var loginRouter = express_1.default.Router();
 loginRouter.use(session_1.default);
-loginRouter.get('/', function (req, res) {
-    /* Servire il login.html statico */
+loginRouter.get('/', auth_1.requiresNoAuth, function (req, res) {
+    return res.status(200).json({ message: "Ok" });
+    /* TODO: Servire il login.html statico */
 });
-loginRouter.post('/', auth_1.doesNotRequireAuth, (0, express_validator_1.body)('email').isEmail().normalizeEmail().withMessage('Email is not valid!'), (0, express_validator_1.body)('password').isLength({ min: Number(process.env.MIN_PASS_LEN) }).trim().escape().withMessage('Password is not valid!'), function (req, res) { return __awaiter(void 0, void 0, void 0, function () {
-    var errors, _a, email, password, user, comparePsw, err_1;
+loginRouter.post('/', auth_1.requiresNoAuth, (0, express_validator_1.body)('email').isEmail().normalizeEmail().withMessage('Email is not valid!'), (0, express_validator_1.body)('password').isLength({ min: Number(process.env.MIN_PASS_LEN) }).trim().escape().withMessage('Password is not valid!'), function (req, res) { return __awaiter(void 0, void 0, void 0, function () {
+    var errors, _a, email, password, user, comparePsw, error_1;
     return __generator(this, function (_b) {
         switch (_b.label) {
             case 0:
@@ -73,15 +72,15 @@ loginRouter.post('/', auth_1.doesNotRequireAuth, (0, express_validator_1.body)('
             case 3:
                 comparePsw = _b.sent();
                 if (!comparePsw)
-                    return [2 /*return*/, res.status(400).json({ message: "Incorrect password !" })];
+                    return [2 /*return*/, res.status(400).json({ message: "Incorrect password!" })];
                 req.session.username = user.username;
                 req.session.email = user.email;
                 req.session.isAdmin = user.isAdmin;
-                //TODO: redirect dashboard 
+                // TODO: Redirect alla dashboard
                 return [2 /*return*/, res.status(200).json({ message: "Logged in", user: user })];
             case 4:
-                err_1 = _b.sent();
-                return [2 /*return*/, res.status(500).json({ error: err_1 })];
+                error_1 = _b.sent();
+                return [2 /*return*/, res.status(500).json({ error: error_1 })];
             case 5: return [2 /*return*/];
         }
     });

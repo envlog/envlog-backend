@@ -41,11 +41,18 @@ var __importDefault = (this && this.__importDefault) || function (mod) {
 Object.defineProperty(exports, "__esModule", { value: true });
 var async_mqtt_1 = __importDefault(require("async-mqtt"));
 var topics = ['Temperature/+', 'RMSSpeedStatus/+', 'AccPeakStatus/+', 'FreqData/+', 'Battery/+'];
-var mqttClient = async_mqtt_1.default.connect("mqtt://test.mosquitto.org/");
-mqttClient.on('connect', function () { return __awaiter(void 0, void 0, void 0, function () { return __generator(this, function (_a) {
-    switch (_a.label) {
-        case 0: return [4 /*yield*/, mqttClient.subscribe(topics)];
-        case 1: return [2 /*return*/, _a.sent()];
-    }
-}); }); });
+var mqttClient = async_mqtt_1.default.connect(process.env.MQTT_BROKER);
+mqttClient.on('connect', function () { return __awaiter(void 0, void 0, void 0, function () {
+    return __generator(this, function (_a) {
+        switch (_a.label) {
+            case 0:
+                console.log("[MQTT] Connected to " + process.env.MQTT_BROKER + ".");
+                return [4 /*yield*/, mqttClient.subscribe(topics)];
+            case 1:
+                _a.sent();
+                console.log("[MQTT] Subscribed to [" + topics.join(', ') + "].");
+                return [2 /*return*/];
+        }
+    });
+}); });
 exports.default = mqttClient;

@@ -43,18 +43,16 @@ var express_1 = __importDefault(require("express"));
 var user_model_1 = __importDefault(require("../Models/user.model"));
 var express_validator_1 = require("express-validator");
 var bcrypt_1 = __importDefault(require("bcrypt"));
-var dotenv_1 = __importDefault(require("dotenv"));
 var session_1 = __importDefault(require("../Connections/session"));
 var auth_1 = require("../Controllers/auth");
-dotenv_1.default.config();
 var registerRouter = express_1.default.Router();
 registerRouter.use(session_1.default);
-registerRouter.get('/', function (req, res) {
+registerRouter.get('/', auth_1.requiresNoAuth, function (req, res) {
     return res.status(200).json({ message: "Ok" });
-    /* Servire il register.html statico */
+    /* TODO: Servire il register.html statico */
 });
-registerRouter.post('/', auth_1.doesNotRequireAuth, (0, express_validator_1.body)('username').isLength({ min: Number(process.env.MIN_USERNAME_LEN) }).withMessage('Username must be at least 5 characters!').trim().escape(), (0, express_validator_1.body)('email').isEmail().normalizeEmail().withMessage('Email is not valid!'), (0, express_validator_1.body)('password').isLength({ min: Number(process.env.MIN_PASS_LEN) }).withMessage('Password must be at least 6 characters!').trim().escape(), function (req, res) { return __awaiter(void 0, void 0, void 0, function () {
-    var errors, _a, username, email, password, hashPsw, user, err_1;
+registerRouter.post('/', auth_1.requiresNoAuth, (0, express_validator_1.body)('username').isLength({ min: Number(process.env.MIN_USERNAME_LEN) }).trim().escape().withMessage('Username must be at least 5 characters!'), (0, express_validator_1.body)('email').isEmail().normalizeEmail().withMessage('Email is not valid!'), (0, express_validator_1.body)('password').isLength({ min: Number(process.env.MIN_PASS_LEN) }).trim().escape().withMessage('Password must be at least 6 characters!'), function (req, res) { return __awaiter(void 0, void 0, void 0, function () {
+    var errors, _a, username, email, password, user, hashPsw, newUser, error_1;
     return __generator(this, function (_b) {
         switch (_b.label) {
             case 0:
@@ -64,19 +62,24 @@ registerRouter.post('/', auth_1.doesNotRequireAuth, (0, express_validator_1.body
                 _a = req.body, username = _a.username, email = _a.email, password = _a.password;
                 _b.label = 1;
             case 1:
-                _b.trys.push([1, 4, , 5]);
-                return [4 /*yield*/, bcrypt_1.default.hash(password, Number(process.env.SALT_ROUNDS))];
+                _b.trys.push([1, 5, , 6]);
+                return [4 /*yield*/, user_model_1.default.findOne({ $or: [{ email: email }, { username: username }] })];
             case 2:
-                hashPsw = _b.sent();
-                user = new user_model_1.default({ username: username, email: email, password: hashPsw });
-                return [4 /*yield*/, user.save()];
+                user = _b.sent();
+                if (user)
+                    return [2 /*return*/, res.status(400).json({ error: "User already exists!" })];
+                return [4 /*yield*/, bcrypt_1.default.hash(password, Number(process.env.SALT_ROUNDS))];
             case 3:
+                hashPsw = _b.sent();
+                newUser = new user_model_1.default({ username: username, email: email, password: hashPsw });
+                return [4 /*yield*/, newUser.save()];
+            case 4:
                 _b.sent();
                 return [2 /*return*/, res.status(200).json({ message: "Saved user to database!" })];
-            case 4:
-                err_1 = _b.sent();
+            case 5:
+                error_1 = _b.sent();
                 return [2 /*return*/, res.status(500).json({ error: "Error saving to database!" })];
-            case 5: return [2 /*return*/];
+            case 6: return [2 /*return*/];
         }
     });
 }); });
