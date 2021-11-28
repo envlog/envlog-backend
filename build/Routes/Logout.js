@@ -10,10 +10,11 @@ var logoutRouter = express_1.default.Router();
 logoutRouter.use(session_1.default);
 logoutRouter.post('/', auth_1.requiresAuth, function (req, res) {
     req.session.destroy(function (err) {
-        if (err)
+        if (err) {
             console.log(err);
+            return res.status(500).json({ message: "Couldn't destroy session!" });
+        }
     });
-    return res.status(200).json({ message: "Logged out!" });
-    // TODO: Redirect a login
+    return res.status(200).redirect('/login');
 });
 exports.default = logoutRouter;

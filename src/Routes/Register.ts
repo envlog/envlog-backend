@@ -4,6 +4,7 @@ import { body, validationResult } from 'express-validator';
 import bcrypt from 'bcrypt';
 import session from '../Connections/session';
 import { requiresNoAuth } from '../Controllers/auth';
+import { staticFolder } from '../Config/path';
 
 const registerRouter = express.Router();
 registerRouter.use(session);
@@ -12,8 +13,7 @@ registerRouter.get(
     '/', 
     requiresNoAuth, 
     (req, res) => {
-        return res.status(200).json({ message: "Ok" });
-        /* TODO: Servire il register.html statico */
+        return res.status(200).sendFile('register.html', { root: staticFolder });
     }
 )
 
@@ -37,8 +37,7 @@ registerRouter.post(
             const hashPsw: string = await bcrypt.hash(password, Number(process.env.SALT_ROUNDS));
             const newUser = new User({ username, email, password: hashPsw });
             await newUser.save();
-            return res.status(200).json({ message: "Saved user to database!" });
-            // TODO: Redirect a login
+            return res.status(200).redirect('/login');
         } catch (error: any) {
             return res.status(500).json({ error: "Error saving to database!" });
         }

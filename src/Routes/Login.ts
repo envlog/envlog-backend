@@ -4,6 +4,7 @@ import { body, validationResult } from 'express-validator';
 import bcrypt from 'bcrypt';
 import session from '../Connections/session';
 import { requiresNoAuth } from '../Controllers/auth';
+import { staticFolder } from '../Config/path';
 
 const loginRouter = express.Router();
 loginRouter.use(session);
@@ -12,8 +13,7 @@ loginRouter.get(
     '/', 
     requiresNoAuth, 
     (req, res) => {
-        return res.status(200).json({ message: "Ok" });
-        /* TODO: Servire il login.html statico */
+        return res.status(200).sendFile('login.html', { root: staticFolder });
     }
 );
 
@@ -37,8 +37,7 @@ loginRouter.post(
             req.session.username = user.username;
             req.session.email = user.email;
             req.session.isAdmin = user.isAdmin;
-            // TODO: Redirect alla dashboard
-            return res.status(200).json({ message: "Logged in", user });
+            return res.status(200).redirect('/');
         } catch (error: any) {
             return res.status(500).json({ error });
         } 

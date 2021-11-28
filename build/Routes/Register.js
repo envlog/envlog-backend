@@ -45,11 +45,11 @@ var express_validator_1 = require("express-validator");
 var bcrypt_1 = __importDefault(require("bcrypt"));
 var session_1 = __importDefault(require("../Connections/session"));
 var auth_1 = require("../Controllers/auth");
+var path_1 = require("../Config/path");
 var registerRouter = express_1.default.Router();
 registerRouter.use(session_1.default);
 registerRouter.get('/', auth_1.requiresNoAuth, function (req, res) {
-    return res.status(200).json({ message: "Ok" });
-    /* TODO: Servire il register.html statico */
+    return res.status(200).sendFile('register.html', { root: path_1.staticFolder });
 });
 registerRouter.post('/', auth_1.requiresNoAuth, (0, express_validator_1.body)('username').isLength({ min: Number(process.env.MIN_USERNAME_LEN) }).trim().escape().withMessage('Username must be at least 5 characters!'), (0, express_validator_1.body)('email').isEmail().normalizeEmail().withMessage('Email is not valid!'), (0, express_validator_1.body)('password').isLength({ min: Number(process.env.MIN_PASS_LEN) }).trim().escape().withMessage('Password must be at least 6 characters!'), function (req, res) { return __awaiter(void 0, void 0, void 0, function () {
     var errors, _a, username, email, password, user, hashPsw, newUser, error_1;
@@ -75,7 +75,7 @@ registerRouter.post('/', auth_1.requiresNoAuth, (0, express_validator_1.body)('u
                 return [4 /*yield*/, newUser.save()];
             case 4:
                 _b.sent();
-                return [2 /*return*/, res.status(200).json({ message: "Saved user to database!" })];
+                return [2 /*return*/, res.status(200).redirect('/login')];
             case 5:
                 error_1 = _b.sent();
                 return [2 /*return*/, res.status(500).json({ error: "Error saving to database!" })];

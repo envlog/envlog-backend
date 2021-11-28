@@ -45,11 +45,11 @@ var express_validator_1 = require("express-validator");
 var bcrypt_1 = __importDefault(require("bcrypt"));
 var session_1 = __importDefault(require("../Connections/session"));
 var auth_1 = require("../Controllers/auth");
+var path_1 = require("../Config/path");
 var loginRouter = express_1.default.Router();
 loginRouter.use(session_1.default);
 loginRouter.get('/', auth_1.requiresNoAuth, function (req, res) {
-    return res.status(200).json({ message: "Ok" });
-    /* TODO: Servire il login.html statico */
+    return res.status(200).sendFile('login.html', { root: path_1.staticFolder });
 });
 loginRouter.post('/', auth_1.requiresNoAuth, (0, express_validator_1.body)('email').isEmail().normalizeEmail().withMessage('Email is not valid!'), (0, express_validator_1.body)('password').isLength({ min: Number(process.env.MIN_PASS_LEN) }).trim().escape().withMessage('Password is not valid!'), function (req, res) { return __awaiter(void 0, void 0, void 0, function () {
     var errors, _a, email, password, user, comparePsw, error_1;
@@ -76,8 +76,7 @@ loginRouter.post('/', auth_1.requiresNoAuth, (0, express_validator_1.body)('emai
                 req.session.username = user.username;
                 req.session.email = user.email;
                 req.session.isAdmin = user.isAdmin;
-                // TODO: Redirect alla dashboard
-                return [2 /*return*/, res.status(200).json({ message: "Logged in", user: user })];
+                return [2 /*return*/, res.status(200).redirect('/')];
             case 4:
                 error_1 = _b.sent();
                 return [2 /*return*/, res.status(500).json({ error: error_1 })];

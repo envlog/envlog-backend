@@ -40,7 +40,7 @@ var __importDefault = (this && this.__importDefault) || function (mod) {
 };
 Object.defineProperty(exports, "__esModule", { value: true });
 var async_mqtt_1 = __importDefault(require("async-mqtt"));
-var topics = ['Temperature/+', 'RMSSpeedStatus/+', 'AccPeakStatus/+', 'FreqData/+', 'Battery/+'];
+var topics = ['Temperature/+', 'RMSSpeedStatus/+', 'AccPeakStatus/+', 'FreqData/+', 'Battery/+', 'TimeDomainDataInfo/+'];
 var mqttClient = async_mqtt_1.default.connect(process.env.MQTT_BROKER);
 mqttClient.on('connect', function () { return __awaiter(void 0, void 0, void 0, function () {
     return __generator(this, function (_a) {
