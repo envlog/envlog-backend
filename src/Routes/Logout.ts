@@ -6,7 +6,7 @@ const logoutRouter = express.Router();
 
 logoutRouter.use(session);
 
-logoutRouter.post('/', requiresAuth, (req: Request, res: Response) => {
+logoutRouter.post('/logout', requiresAuth, (req: Request, res: Response) => {
     req.session.destroy((err) => {
         if (err) {
             console.log(err);
@@ -14,9 +14,7 @@ logoutRouter.post('/', requiresAuth, (req: Request, res: Response) => {
         }
     });
 
-    return res.status(200).redirect('/login');
+    return res.status(200).redirect('/auth/login');
 });
-
-
 
 export default logoutRouter;

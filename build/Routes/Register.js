@@ -48,10 +48,10 @@ var auth_1 = require("../Controllers/auth");
 var path_1 = require("../Config/path");
 var registerRouter = express_1.default.Router();
 registerRouter.use(session_1.default);
-registerRouter.get('/', auth_1.requiresNoAuth, function (req, res) {
+registerRouter.get('/register', auth_1.requiresNoAuth, function (req, res) {
     return res.status(200).sendFile('register.html', { root: path_1.staticFolder });
 });
-registerRouter.post('/', auth_1.requiresNoAuth, (0, express_validator_1.body)('username').isLength({ min: Number(process.env.MIN_USERNAME_LEN) }).trim().escape().withMessage('Username must be at least 5 characters!'), (0, express_validator_1.body)('email').isEmail().normalizeEmail().withMessage('Email is not valid!'), (0, express_validator_1.body)('password').isLength({ min: Number(process.env.MIN_PASS_LEN) }).trim().escape().withMessage('Password must be at least 6 characters!'), function (req, res) { return __awaiter(void 0, void 0, void 0, function () {
+registerRouter.post('/register', auth_1.requiresNoAuth, auth_1.comparePassword, (0, express_validator_1.body)('username').isLength({ min: Number(process.env.MIN_USERNAME_LEN) }).trim().escape().withMessage("Username must be at least " + process.env.MIN_USERNAME_LEN + " characters!"), (0, express_validator_1.body)('email').isEmail().normalizeEmail().withMessage('Email is not valid!'), (0, express_validator_1.body)('password').isLength({ min: Number(process.env.MIN_PASS_LEN) }).trim().escape().withMessage("Password must be at least " + process.env.MIN_PASS_LEN + " characters!"), function (req, res) { return __awaiter(void 0, void 0, void 0, function () {
     var errors, _a, username, email, password, user, hashPsw, newUser, error_1;
     return __generator(this, function (_b) {
         switch (_b.label) {
@@ -75,7 +75,7 @@ registerRouter.post('/', auth_1.requiresNoAuth, (0, express_validator_1.body)('u
                 return [4 /*yield*/, newUser.save()];
             case 4:
                 _b.sent();
-                return [2 /*return*/, res.status(200).redirect('/login')];
+                return [2 /*return*/, res.status(200).redirect('/auth/login')];
             case 5:
                 error_1 = _b.sent();
                 return [2 /*return*/, res.status(500).json({ error: "Error saving to database!" })];

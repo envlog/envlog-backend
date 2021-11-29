@@ -3,14 +3,14 @@ import User from '../Models/user.model';
 import { body, validationResult } from 'express-validator';
 import bcrypt from 'bcrypt';
 import session from '../Connections/session';
-import { requiresNoAuth } from '../Controllers/auth';
+import { comparePassword, requiresNoAuth } from '../Controllers/auth';
 import { staticFolder } from '../Config/path';
 
 const registerRouter = express.Router();
 registerRouter.use(session);
 
 registerRouter.get(
-    '/', 
+    '/register', 
     requiresNoAuth, 
     (req, res) => {
         return res.status(200).sendFile('register.html', { root: staticFolder });
@@ -18,11 +18,12 @@ registerRouter.get(
 )
 
 registerRouter.post(
-    '/',
+    '/register',
     requiresNoAuth,
-    body('username').isLength({ min: Number(process.env.MIN_USERNAME_LEN) }).trim().escape().withMessage('Username must be at least 5 characters!'),
+    comparePassword,
+    body('username').isLength({ min: Number(process.env.MIN_USERNAME_LEN) }).trim().escape().withMessage(`Username must be at least ${process.env.MIN_USERNAME_LEN} characters!`),
     body('email').isEmail().normalizeEmail().withMessage('Email is not valid!'),
-    body('password').isLength({ min: Number(process.env.MIN_PASS_LEN) }).trim().escape().withMessage('Password must be at least 6 characters!'),
+    body('password').isLength({ min: Number(process.env.MIN_PASS_LEN) }).trim().escape().withMessage(`Password must be at least ${process.env.MIN_PASS_LEN} characters!`),
     
     async (req: Request<{}, {}, { username: string, email: string, password: string }>, res: Response) => {
 
@@ -37,7 +38,7 @@ registerRouter.post(
             const hashPsw: string = await bcrypt.hash(password, Number(process.env.SALT_ROUNDS));
             const newUser = new User({ username, email, password: hashPsw });
             await newUser.save();
-            return res.status(200).redirect('/login');
+            return res.status(200).redirect('/auth/login');
         } catch (error: any) {
             return res.status(500).json({ error: "Error saving to database!" });
         }

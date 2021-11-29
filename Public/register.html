@@ -7,8 +7,8 @@
     <title>Register</title>
 </head>
 <body>
-    <form action="/register" method="POST">
-        <label for="username">Username</label>
+    <form action="/auth/register" method="POST">
+        <label for="username">Nome Utente</label>
         <input type="text" name="username" required><br>
 
         <label for="email">Email</label>
@@ -17,7 +17,10 @@
         <label for="password">Password</label>
         <input type="password" name="password" required><br>
 
-        <button type="submit">Register</button>
+        <label for="password">Conferma Password</label>
+        <input type="password" name="passwordConfirmation" required><br>
+
+        <button type="submit">Registrati</button>
 
     </form>
 </body>

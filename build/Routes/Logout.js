@@ -8,13 +8,13 @@ var session_1 = __importDefault(require("../Connections/session"));
 var auth_1 = require("../Controllers/auth");
 var logoutRouter = express_1.default.Router();
 logoutRouter.use(session_1.default);
-logoutRouter.post('/', auth_1.requiresAuth, function (req, res) {
+logoutRouter.post('/logout', auth_1.requiresAuth, function (req, res) {
     req.session.destroy(function (err) {
         if (err) {
             console.log(err);
             return res.status(500).json({ message: "Couldn't destroy session!" });
         }
     });
-    return res.status(200).redirect('/login');
+    return res.status(200).redirect('/auth/login');
 });
 exports.default = logoutRouter;
