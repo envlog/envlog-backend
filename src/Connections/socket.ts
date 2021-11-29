@@ -6,7 +6,7 @@ const io = new Server(Number(process.env.SOCKET_PORT), {
 });
 
 io.on('connection', socket => {
-    console.log(`${socket.id} connected!`);
+    console.log(`[SOCKET.IO] ${socket.id} connected!`);
 });
 
 export default io;

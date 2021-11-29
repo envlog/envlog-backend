@@ -61,29 +61,30 @@ var Logout_1 = __importDefault(require("./Routes/Logout"));
 var Index_1 = __importDefault(require("./Routes/Index"));
 var mqtt_client_1 = __importDefault(require("./Connections/mqtt_client"));
 var path_1 = require("./Config/path");
+var socket_1 = __importDefault(require("./Connections/socket"));
 var sensor_model_1 = __importDefault(require("./Models/sensor.model"));
+var moment_1 = __importDefault(require("moment"));
 var sensors = {};
 mqtt_client_1.default.on('message', function (topic, payload) { return __awaiter(void 0, void 0, void 0, function () {
-    var object, DevAddr, minifiedObject, Type, Type_1, MCU_ID, dataProperties, stringifiedProperties, tempObject, err_1;
+    var mqttObject, DevAddr, minifiedObject, Type, MCU_ID, finalObject, Type_1, MCU_ID_1, dataProperties, stringifiedProperties, err_1;
     return __generator(this, function (_a) {
         switch (_a.label) {
             case 0:
-                console.log("[MQTT] Incoming " + topic + ".");
-                object = JSON.parse(payload.toString());
-                DevAddr = object.DevAddr, minifiedObject = __rest(object, ["DevAddr"]);
-                Type = minifiedObject.Type;
+                mqttObject = JSON.parse(payload.toString());
+                DevAddr = mqttObject.DevAddr, minifiedObject = __rest(mqttObject, ["DevAddr"]);
+                Type = minifiedObject.Type, MCU_ID = minifiedObject.MCU_ID;
+                finalObject = {
+                    Type: Type,
+                    MCU_ID: MCU_ID,
+                    createdAt: moment_1.default.utc().format()
+                };
                 if (!minifiedObject.Data) {
-                    Type_1 = minifiedObject.Type, MCU_ID = minifiedObject.MCU_ID, dataProperties = __rest(minifiedObject, ["Type", "MCU_ID"]);
+                    Type_1 = minifiedObject.Type, MCU_ID_1 = minifiedObject.MCU_ID, dataProperties = __rest(minifiedObject, ["Type", "MCU_ID"]);
                     stringifiedProperties = JSON.stringify(dataProperties);
-                    tempObject = {
-                        Type: Type_1,
-                        MCU_ID: MCU_ID,
-                        Data: stringifiedProperties
-                    };
-                    minifiedObject = tempObject;
+                    finalObject.Data = stringifiedProperties;
                 }
                 else
-                    minifiedObject.Data = JSON.stringify(minifiedObject.Data);
+                    finalObject.Data = JSON.stringify(minifiedObject.Data);
                 if (!sensors[Type]) {
                     sensors[Type] = {
                         counter: 0,
@@ -91,7 +92,7 @@ mqtt_client_1.default.on('message', function (topic, payload) { return __awaiter
                     };
                 }
                 ;
-                sensors[Type].buffer.push(minifiedObject);
+                sensors[Type].buffer.push(finalObject);
                 sensors[Type].counter++;
                 if (!(sensors[Type].counter === Number(process.env.ELEMENTS_PER_BUFFER))) return [3 /*break*/, 4];
                 _a.label = 1;
@@ -102,13 +103,15 @@ mqtt_client_1.default.on('message', function (topic, payload) { return __awaiter
                 _a.sent();
                 sensors[Type].counter = 0;
                 sensors[Type].buffer.splice(0);
+                console.log("[DATABASE] Saved " + process.env.ELEMENTS_PER_BUFFER + " " + Type + " elements to database!");
                 return [3 /*break*/, 4];
             case 3:
                 err_1 = _a.sent();
-                console.log(err_1);
+                console.log("[DATABASE] Error trying to save " + process.env.ELEMENTS_PER_BUFFER + " " + Type + " elements to database: " + err_1 + ".");
                 return [3 /*break*/, 4];
             case 4:
                 ;
+                socket_1.default.emit('data', payload.toString());
                 return [2 /*return*/];
         }
     });

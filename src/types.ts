@@ -66,3 +66,10 @@ export interface Sensors {
     [key: string]: SensorDataBuffer,
 }
 
+export interface SensorSchema {
+    Type: string,
+    MCU_ID: string,
+    Data?: string,
+    createdAt: string
+}
+

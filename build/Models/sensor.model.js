@@ -16,7 +16,13 @@ var SensorDataSchema = new mongoose_1.default.Schema({
     Type: {
         type: String,
         required: true
+    },
+    createdAt: {
+        type: Date,
+        required: true,
     }
 });
+var time = 60 * 60 * 24 * 14; // 2 settimane
+SensorDataSchema.index({ createdAt: 1 }, { expireAfterSeconds: 120 });
 var SensorData = mongoose_1.default.model('SensorsDataHistory', SensorDataSchema);
 exports.default = SensorData;

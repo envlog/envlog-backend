@@ -11,30 +11,31 @@ import mqttClient from './Connections/mqtt_client';
 import { staticFolder } from './Config/path';
 import io from './Connections/socket';
 import SensorData from './Models/sensor.model';
-import { Sensors, MQTTPayload } from './types';
+import { Sensors, MQTTPayload, SensorSchema } from './types';
+import moment from 'moment';
 
 
 var sensors: Sensors = {};
 
 
 mqttClient.on('message', async (topic, payload: Buffer) => { // Legge i dati in arrivo da MQTT e li invia a tutti i socket connessi
-    console.log(`[MQTT] Incoming ${topic}.`);
+    //console.log(`[MQTT] Incoming ${topic}.`);
 
-    const object: MQTTPayload = JSON.parse(payload.toString()); 
-    var { DevAddr, ...minifiedObject } = object;
-    const Type = minifiedObject.Type;
+    const mqttObject: MQTTPayload = JSON.parse(payload.toString()); 
+    var { DevAddr, ...minifiedObject } = mqttObject;
+    const { Type, MCU_ID } = minifiedObject;
+    let finalObject: SensorSchema = {
+        Type,
+        MCU_ID,
+        createdAt: moment.utc().format()
+    };
 
     if (!minifiedObject.Data) {
         const { Type, MCU_ID, ...dataProperties } = minifiedObject;
         const stringifiedProperties = JSON.stringify(dataProperties);
-        const tempObject = {
-            Type,
-            MCU_ID,
-            Data: stringifiedProperties
-        }
-        minifiedObject = tempObject;
+        finalObject.Data = stringifiedProperties;
     } else 
-        minifiedObject.Data = JSON.stringify(minifiedObject.Data);
+        finalObject.Data = JSON.stringify(minifiedObject.Data);
 
     if (!sensors[Type]) {
         sensors[Type] = {
@@ -43,7 +44,7 @@ mqttClient.on('message', async (topic, payload: Buffer) => { // Legge i dati in 
         }
     };
 
-    sensors[Type].buffer.push(minifiedObject);
+    sensors[Type].buffer.push(finalObject);
     sensors[Type].counter++;
 
     if (sensors[Type].counter === Number(process.env.ELEMENTS_PER_BUFFER)) {
@@ -51,12 +52,13 @@ mqttClient.on('message', async (topic, payload: Buffer) => { // Legge i dati in 
             await SensorData.insertMany(sensors[Type].buffer);
             sensors[Type].counter = 0;
             sensors[Type].buffer.splice(0);
+            console.log(`[DATABASE] Saved ${process.env.ELEMENTS_PER_BUFFER} ${Type} elements to database!`);
         } catch (err: any) {
-            console.log(err)
+            console.log(`[DATABASE] Error trying to save ${process.env.ELEMENTS_PER_BUFFER} ${Type} elements to database: ${err}.`);
         }
     };
     
-    // io.emit('data', payload.toString());
+    io.emit('data', payload.toString());
 }); 
 
 const app = express();
