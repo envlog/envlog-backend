@@ -16,7 +16,7 @@ const SensorDataSchema = new mongoose.Schema(
         },
         Received: {
             type: Date,
-            required: true,
+            required: true
         } 
     }
 );

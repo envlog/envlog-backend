@@ -14,10 +14,10 @@ export const startMqttClient = async () => {
         
         const mqttObject: MQTTPayload = JSON.parse(payload.toString()); 
 
-        if (sensorsCollection) {
+        /* if (sensorsCollection) {
             const sensor = sensorsCollection.find(({ MCU_ID, Type }) => MCU_ID === mqttObject.MCU_ID && Type === mqttObject.Type); 
             if (!sensor || (sensor && !sensor.Enabled)) return; // Controllo che il sensore sia attivo o che sia presente nella lista
-        }
+        } */
 
         const { DevAddr, ...minifiedObject } = mqttObject;
         const { Type, MCU_ID } = minifiedObject;

@@ -19,7 +19,7 @@ var SensorDataSchema = new mongoose_1.default.Schema({
     },
     Received: {
         type: Date,
-        required: true,
+        required: true
     }
 });
 SensorDataSchema.index({ Received: 1 }, { expireAfterSeconds: Number(process.env.EXPIRE_AFTER_SECONDS) });

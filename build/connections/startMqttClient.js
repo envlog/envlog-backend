@@ -55,24 +55,15 @@ var mqtt_client_1 = __importDefault(require("./mqtt_client"));
 var socket_1 = __importDefault(require("./socket"));
 var sensor_model_1 = __importDefault(require("../Models/sensor.model"));
 var moment_1 = __importDefault(require("moment"));
-var sensors_loader_1 = require("../Utils/sensors_loader");
 var sensors = {};
 var startMqttClient = function () { return __awaiter(void 0, void 0, void 0, function () {
     return __generator(this, function (_a) {
         mqtt_client_1.default.on('message', function (topic, payload) { return __awaiter(void 0, void 0, void 0, function () {
-            var mqttObject, sensor, DevAddr, minifiedObject, Type, MCU_ID, finalObject, Type_1, MCU_ID_1, dataProperties, stringifiedProperties, err_1;
+            var mqttObject, DevAddr, minifiedObject, Type, MCU_ID, finalObject, Type_1, MCU_ID_1, dataProperties, stringifiedProperties, err_1;
             return __generator(this, function (_a) {
                 switch (_a.label) {
                     case 0:
                         mqttObject = JSON.parse(payload.toString());
-                        if (sensors_loader_1.sensorsCollection) {
-                            sensor = sensors_loader_1.sensorsCollection.find(function (_a) {
-                                var MCU_ID = _a.MCU_ID, Type = _a.Type;
-                                return MCU_ID === mqttObject.MCU_ID && Type === mqttObject.Type;
-                            });
-                            if (!sensor || (sensor && !sensor.Enabled))
-                                return [2 /*return*/]; // Controllo che il sensore sia attivo o che sia presente nella lista
-                        }
                         DevAddr = mqttObject.DevAddr, minifiedObject = __rest(mqttObject, ["DevAddr"]);
                         Type = minifiedObject.Type, MCU_ID = minifiedObject.MCU_ID;
                         finalObject = {
