@@ -55,58 +55,70 @@ var mqtt_client_1 = __importDefault(require("./mqtt_client"));
 var socket_1 = __importDefault(require("./socket"));
 var sensor_model_1 = __importDefault(require("../Models/sensor.model"));
 var moment_1 = __importDefault(require("moment"));
+var sensors_loader_1 = require("../Utils/sensors_loader");
 var sensors = {};
-var startMqttClient = function () {
-    mqtt_client_1.default.on('message', function (topic, payload) { return __awaiter(void 0, void 0, void 0, function () {
-        var mqttObject, DevAddr, minifiedObject, Type, MCU_ID, finalObject, Type_1, MCU_ID_1, dataProperties, stringifiedProperties, err_1;
-        return __generator(this, function (_a) {
-            switch (_a.label) {
-                case 0:
-                    mqttObject = JSON.parse(payload.toString());
-                    DevAddr = mqttObject.DevAddr, minifiedObject = __rest(mqttObject, ["DevAddr"]);
-                    Type = minifiedObject.Type, MCU_ID = minifiedObject.MCU_ID;
-                    finalObject = {
-                        Type: Type,
-                        MCU_ID: MCU_ID,
-                        createdAt: moment_1.default.utc().format()
-                    };
-                    if (!minifiedObject.Data) {
-                        Type_1 = minifiedObject.Type, MCU_ID_1 = minifiedObject.MCU_ID, dataProperties = __rest(minifiedObject, ["Type", "MCU_ID"]);
-                        stringifiedProperties = JSON.stringify(dataProperties);
-                        finalObject.Data = stringifiedProperties;
-                    }
-                    else
-                        finalObject.Data = JSON.stringify(minifiedObject.Data);
-                    if (!sensors[Type]) {
-                        sensors[Type] = {
-                            counter: 0,
-                            buffer: []
+var startMqttClient = function () { return __awaiter(void 0, void 0, void 0, function () {
+    return __generator(this, function (_a) {
+        mqtt_client_1.default.on('message', function (topic, payload) { return __awaiter(void 0, void 0, void 0, function () {
+            var mqttObject, sensor, DevAddr, minifiedObject, Type, MCU_ID, finalObject, Type_1, MCU_ID_1, dataProperties, stringifiedProperties, err_1;
+            return __generator(this, function (_a) {
+                switch (_a.label) {
+                    case 0:
+                        mqttObject = JSON.parse(payload.toString());
+                        if (sensors_loader_1.sensorsCollection) {
+                            sensor = sensors_loader_1.sensorsCollection.find(function (_a) {
+                                var MCU_ID = _a.MCU_ID, Type = _a.Type;
+                                return MCU_ID === mqttObject.MCU_ID && Type === mqttObject.Type;
+                            });
+                            if (!sensor || (sensor && !sensor.Enabled))
+                                return [2 /*return*/]; // Controllo che il sensore sia attivo o che sia presente nella lista
+                        }
+                        DevAddr = mqttObject.DevAddr, minifiedObject = __rest(mqttObject, ["DevAddr"]);
+                        Type = minifiedObject.Type, MCU_ID = minifiedObject.MCU_ID;
+                        finalObject = {
+                            Type: Type,
+                            MCU_ID: MCU_ID,
+                            Received: moment_1.default.utc().format()
                         };
-                    }
-                    ;
-                    sensors[Type].buffer.push(finalObject);
-                    sensors[Type].counter++;
-                    if (!(sensors[Type].counter === Number(process.env.ELEMENTS_PER_BUFFER))) return [3 /*break*/, 4];
-                    _a.label = 1;
-                case 1:
-                    _a.trys.push([1, 3, , 4]);
-                    return [4 /*yield*/, sensor_model_1.default.insertMany(sensors[Type].buffer)];
-                case 2:
-                    _a.sent();
-                    sensors[Type].counter = 0;
-                    sensors[Type].buffer.splice(0);
-                    console.log("[DATABASE] Saved " + process.env.ELEMENTS_PER_BUFFER + " " + Type + " elements to database!");
-                    return [3 /*break*/, 4];
-                case 3:
-                    err_1 = _a.sent();
-                    console.log("[DATABASE] Error trying to save " + process.env.ELEMENTS_PER_BUFFER + " " + Type + " elements to database: " + err_1 + ".");
-                    return [3 /*break*/, 4];
-                case 4:
-                    ;
-                    socket_1.default.emit('data', payload.toString());
-                    return [2 /*return*/];
-            }
-        });
-    }); });
-};
+                        if (!minifiedObject.Data) {
+                            Type_1 = minifiedObject.Type, MCU_ID_1 = minifiedObject.MCU_ID, dataProperties = __rest(minifiedObject, ["Type", "MCU_ID"]);
+                            stringifiedProperties = JSON.stringify(dataProperties);
+                            finalObject.Data = stringifiedProperties;
+                        }
+                        else
+                            finalObject.Data = JSON.stringify(minifiedObject.Data);
+                        if (!sensors[Type]) {
+                            sensors[Type] = {
+                                counter: 0,
+                                buffer: []
+                            };
+                        }
+                        ;
+                        sensors[Type].buffer.push(finalObject);
+                        sensors[Type].counter++;
+                        if (!(sensors[Type].counter === Number(process.env.ELEMENTS_PER_BUFFER))) return [3 /*break*/, 4];
+                        _a.label = 1;
+                    case 1:
+                        _a.trys.push([1, 3, , 4]);
+                        return [4 /*yield*/, sensor_model_1.default.insertMany(sensors[Type].buffer)];
+                    case 2:
+                        _a.sent();
+                        sensors[Type].counter = 0;
+                        sensors[Type].buffer.splice(0);
+                        console.log("[DATABASE] Saved " + process.env.ELEMENTS_PER_BUFFER + " " + Type + " elements to database!");
+                        return [3 /*break*/, 4];
+                    case 3:
+                        err_1 = _a.sent();
+                        console.log("[DATABASE] Error trying to save " + process.env.ELEMENTS_PER_BUFFER + " " + Type + " elements to database: " + err_1 + ".");
+                        return [3 /*break*/, 4];
+                    case 4:
+                        ;
+                        socket_1.default.emit('data', payload.toString());
+                        return [2 /*return*/];
+                }
+            });
+        }); });
+        return [2 /*return*/];
+    });
+}); };
 exports.startMqttClient = startMqttClient;

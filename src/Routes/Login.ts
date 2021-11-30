@@ -20,8 +20,8 @@ loginRouter.get(
 loginRouter.post(
     '/login', 
     requiresNoAuth,
-    body('email').isEmail().normalizeEmail().withMessage('Email is not valid!'),
-    body('password').isLength({ min: Number(process.env.MIN_PASS_LEN) }).trim().escape().withMessage('Password is not valid!'),
+    body('email').isEmail().normalizeEmail().withMessage("L'email non è valida!"),
+    body('password').isLength({ min: Number(process.env.MIN_PASS_LEN) }).trim().escape().withMessage('La password non è valida!'),
     async (req: Request<{}, {}, { email: string, password: string }>, res: Response) => {
         
         const errors = validationResult(req);
@@ -30,16 +30,16 @@ loginRouter.post(
         const { email, password } = req.body;
 
         try {
-            let user = await User.findOne({ email });
-            if (!user) return res.status(404).json({ message: "Email not found!" });
-            let comparePsw = await bcrypt.compare(password, user.password);
-            if (!comparePsw) return res.status(400).json({ message: "Incorrect password!" });
-            req.session.username = user.username;
-            req.session.email = user.email;
-            req.session.isAdmin = user.isAdmin;
-            return res.status(200).redirect('/');
+            let user = await User.findOne({ Email: email });
+            if(!user) return res.status(400).json({ value: email, msg: "Email non trovata!", param: "email", location: "body" });
+            let comparePsw = await bcrypt.compare(password, user.Password);
+            if(!comparePsw) return res.status(400).json({ msg: "Password errata!", param: "password", location: "body" });
+            req.session.username = user.Username;
+            req.session.email = user.Email;
+            req.session.isAdmin = user.IsAdmin;
+            return res.status(200).json({ username: user.Username, email });
         } catch (error: any) {
-            return res.status(500).json({ error });
+            return res.status(500).json({ errors: error });
         } 
     }
 );

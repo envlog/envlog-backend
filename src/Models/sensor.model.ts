@@ -14,16 +14,14 @@ const SensorDataSchema = new mongoose.Schema(
             type: String,
             required: true
         },
-        createdAt: {
+        Received: {
             type: Date,
             required: true,
         } 
     }
 );
 
-const MAX_TIME = 60 * 60 * 24 * 14; // 2 settimane
-
-SensorDataSchema.index({ createdAt: 1 }, { expireAfterSeconds: MAX_TIME } )
+SensorDataSchema.index({ Received: 1 }, { expireAfterSeconds: Number(process.env.EXPIRE_AFTER_SECONDS) } )
 
 const SensorData = mongoose.model('SensorsDataHistory', SensorDataSchema);
 

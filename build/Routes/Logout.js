@@ -10,10 +10,8 @@ var logoutRouter = express_1.default.Router();
 logoutRouter.use(session_1.default);
 logoutRouter.post('/logout', auth_1.requiresAuth, function (req, res) {
     req.session.destroy(function (err) {
-        if (err) {
-            console.log(err);
-            return res.status(500).json({ message: "Couldn't destroy session!" });
-        }
+        if (err)
+            return res.status(500).json({ errors: { msg: "Impossibile distruggere la sessione!" } });
     });
     return res.status(200).redirect('/auth/login');
 });

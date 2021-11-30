@@ -5,21 +5,21 @@ var __importDefault = (this && this.__importDefault) || function (mod) {
 Object.defineProperty(exports, "__esModule", { value: true });
 var mongoose_1 = __importDefault(require("mongoose"));
 var UserSchema = new mongoose_1.default.Schema({
-    username: {
+    Username: {
         type: String,
         unique: true,
         required: true
     },
-    email: {
+    Email: {
         type: String,
         unique: true,
         required: true
     },
-    password: {
+    Password: {
         type: String,
         required: true
     },
-    isAdmin: {
+    IsAdmin: {
         type: Boolean,
         default: false
     }

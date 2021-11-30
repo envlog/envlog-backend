@@ -3,22 +3,29 @@ import io from './socket';
 import SensorData from '../Models/sensor.model';
 import { Sensors, MQTTPayload, SensorSchema } from '../types';
 import moment from 'moment';
+import { sensorsCollection } from '../Utils/sensors_loader';
 
 let sensors: Sensors = {};
 
-export const startMqttClient = () => {
+export const startMqttClient = async () => {
+   
     mqttClient.on('message', async (topic, payload: Buffer) => { // Legge i dati in arrivo dal broker MQTT, li invia a tutti i socket connessi e li raccoglie in un buffer
         //console.log(`[MQTT] Incoming ${topic}.`);              // Una volta raccolti N dati, essi vengolo salvati nel database e il buffer viene pulito
-    
-        const mqttObject: MQTTPayload = JSON.parse(payload.toString()); 
         
+        const mqttObject: MQTTPayload = JSON.parse(payload.toString()); 
+
+        if (sensorsCollection) {
+            const sensor = sensorsCollection.find(({ MCU_ID, Type }) => MCU_ID === mqttObject.MCU_ID && Type === mqttObject.Type); 
+            if (!sensor || (sensor && !sensor.Enabled)) return; // Controllo che il sensore sia attivo o che sia presente nella lista
+        }
+
         const { DevAddr, ...minifiedObject } = mqttObject;
         const { Type, MCU_ID } = minifiedObject;
 
         let finalObject: SensorSchema = {
             Type,
             MCU_ID,
-            createdAt: moment.utc().format()
+            Received: moment.utc().format()
         };
     
         if (!minifiedObject.Data) {

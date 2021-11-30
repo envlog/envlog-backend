@@ -4,24 +4,23 @@ var __importDefault = (this && this.__importDefault) || function (mod) {
 };
 Object.defineProperty(exports, "__esModule", { value: true });
 var mongoose_1 = __importDefault(require("mongoose"));
-var SensorDataSchema = new mongoose_1.default.Schema({
+var SensorsSchema = new mongoose_1.default.Schema({
     MCU_ID: {
         type: String,
         required: true
     },
-    Data: {
+    Name: {
         type: String,
-        required: true
+        unique: true
     },
     Type: {
         type: String,
         required: true
     },
-    Received: {
-        type: Date,
-        required: true,
+    Enabled: {
+        type: Boolean,
+        default: true
     }
 });
-SensorDataSchema.index({ Received: 1 }, { expireAfterSeconds: Number(process.env.EXPIRE_AFTER_SECONDS) });
-var SensorData = mongoose_1.default.model('SensorsDataHistory', SensorDataSchema);
-exports.default = SensorData;
+var Sensor = mongoose_1.default.model('Sensor', SensorsSchema);
+exports.default = Sensor;

@@ -8,10 +8,7 @@ logoutRouter.use(session);
 
 logoutRouter.post('/logout', requiresAuth, (req: Request, res: Response) => {
     req.session.destroy((err) => {
-        if (err) {
-            console.log(err);
-            return res.status(500).json({ message: "Couldn't destroy session!" });
-        }
+        if (err) return res.status(500).json({ errors: { msg: "Impossibile distruggere la sessione!" } });
     });
 
     return res.status(200).redirect('/auth/login');

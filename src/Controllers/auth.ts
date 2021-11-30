@@ -1,4 +1,6 @@
 import { Request, Response, NextFunction } from 'express';
+import { Optional } from '../types';
+import { ValidationError } from 'express-validator';
 
 export const requiresNoAuth = (req: Request, res: Response, next: NextFunction) => {
     if (!req.session.username)
@@ -8,16 +10,27 @@ export const requiresNoAuth = (req: Request, res: Response, next: NextFunction) 
 }
 
 export const requiresAuth = (req: Request, res: Response, next: NextFunction) => {
-    if (req.session && req.session.username)
+    //if (req.session && req.session.username)
         return next();
 
     return res.status(401).redirect('/auth/login');
 }
 
 export const comparePassword = ({ body: { password, passwordConfirmation } }: Request, res: Response, next: NextFunction) => {
-    if (password === passwordConfirmation)
+    if (password != passwordConfirmation)
+        res.locals.error = {
+            msg: "Le password non corrispondono",
+            param: "passwordConfirmation",
+            location: "body"
+        }
+
+    return next();
+}
+
+export const isAdmin = (req: Request, res: Response, next: NextFunction) => {
+    //if (req.session.isAdmin)
         return next();
-        
-    return res.status(401).json({ message: "Passwords do not match!" });
+
+    return res.status(401).json({ errors: { msg: "Non hai i permessi necessari!" }});
 }
 

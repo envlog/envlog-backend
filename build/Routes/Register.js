@@ -51,34 +51,36 @@ registerRouter.use(session_1.default);
 registerRouter.get('/register', auth_1.requiresNoAuth, function (req, res) {
     return res.status(200).sendFile('register.html', { root: path_1.staticFolder });
 });
-registerRouter.post('/register', auth_1.requiresNoAuth, auth_1.comparePassword, (0, express_validator_1.body)('username').isLength({ min: Number(process.env.MIN_USERNAME_LEN) }).trim().escape().withMessage("Username must be at least " + process.env.MIN_USERNAME_LEN + " characters!"), (0, express_validator_1.body)('email').isEmail().normalizeEmail().withMessage('Email is not valid!'), (0, express_validator_1.body)('password').isLength({ min: Number(process.env.MIN_PASS_LEN) }).trim().escape().withMessage("Password must be at least " + process.env.MIN_PASS_LEN + " characters!"), function (req, res) { return __awaiter(void 0, void 0, void 0, function () {
-    var errors, _a, username, email, password, user, hashPsw, newUser, error_1;
+registerRouter.post('/register', auth_1.requiresNoAuth, auth_1.comparePassword, (0, express_validator_1.body)('username').isLength({ min: Number(process.env.MIN_USERNAME_LEN) }).trim().escape().withMessage("Il nome utente deve contenere almeno " + process.env.MIN_USERNAME_LEN + " caratteri!"), (0, express_validator_1.body)('email').isEmail().normalizeEmail().withMessage("L'email non è valida!"), (0, express_validator_1.body)('password').isLength({ min: Number(process.env.MIN_PASS_LEN) }).trim().escape().withMessage("La password deve contenere almeno " + process.env.MIN_PASS_LEN + " caratteri!"), function (req, res) { return __awaiter(void 0, void 0, void 0, function () {
+    var errors, errorsArray, _a, username, email, password, user, hashPsw, newUser, error_1;
     return __generator(this, function (_b) {
         switch (_b.label) {
             case 0:
                 errors = (0, express_validator_1.validationResult)(req);
-                if (!errors.isEmpty())
-                    return [2 /*return*/, res.status(400).json({ errors: errors.array() })];
+                errorsArray = errors.array();
+                res.locals.error && errorsArray.push(res.locals.error);
+                if (errorsArray.length)
+                    return [2 /*return*/, res.status(400).json({ errors: errorsArray })];
                 _a = req.body, username = _a.username, email = _a.email, password = _a.password;
                 _b.label = 1;
             case 1:
                 _b.trys.push([1, 5, , 6]);
-                return [4 /*yield*/, user_model_1.default.findOne({ $or: [{ email: email }, { username: username }] })];
+                return [4 /*yield*/, user_model_1.default.findOne({ $or: [{ Email: email }, { Username: username }] })];
             case 2:
                 user = _b.sent();
                 if (user)
-                    return [2 /*return*/, res.status(400).json({ error: "User already exists!" })];
+                    return [2 /*return*/, res.status(400).json({ errors: { msg: "Email o nome utente già esistenti!" } })]; //Controllo lato front-end se errors è un array
                 return [4 /*yield*/, bcrypt_1.default.hash(password, Number(process.env.SALT_ROUNDS))];
             case 3:
                 hashPsw = _b.sent();
-                newUser = new user_model_1.default({ username: username, email: email, password: hashPsw });
+                newUser = new user_model_1.default({ Username: username, Email: email, Password: hashPsw });
                 return [4 /*yield*/, newUser.save()];
             case 4:
                 _b.sent();
-                return [2 /*return*/, res.status(200).redirect('/auth/login')];
+                return [2 /*return*/, res.status(201).json({ username: username, email: email })];
             case 5:
                 error_1 = _b.sent();
-                return [2 /*return*/, res.status(500).json({ error: "Error saving to database!" })];
+                return [2 /*return*/, res.status(500).json({ errors: { msg: error_1 } })];
             case 6: return [2 /*return*/];
         }
     });
