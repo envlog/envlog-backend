@@ -1,7 +1,7 @@
 import dotenv_config from './Config/dotenv_config';
 dotenv_config();
 import db_connection from './Connections/db_connection';
-db_connection;
+db_connection();
 import { loadSensorsCollection } from './Utils/sensors_loader';
 loadSensorsCollection();
 import { startMqttClient } from './Connections/startMqttClient';
@@ -13,7 +13,6 @@ import logoutRouter from './Routes/Logout';
 import indexRouter from './Routes/Index';
 import sensorsRouter from './Routes/Sensors';
 import { staticFolder } from './Config/path';
-
 
 const app = express();
 

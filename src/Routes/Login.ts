@@ -25,21 +25,21 @@ loginRouter.post(
     async (req: Request<{}, {}, { email: string, password: string }>, res: Response) => {
         
         const errors = validationResult(req);
-        if (!errors.isEmpty()) return res.status(400).json({ errors: errors.array() });
+        if (!errors.isEmpty()) return res.status(400).json({ errors: errors.array().map(item => item.msg) });
         
         const { email, password } = req.body;
 
         try {
             let user = await User.findOne({ Email: email });
-            if(!user) return res.status(400).json({ value: email, msg: "Email non trovata!", param: "email", location: "body" });
+            if(!user) return res.status(400).json({ errors: ["Email non trovata!"] });
             let comparePsw = await bcrypt.compare(password, user.Password);
-            if(!comparePsw) return res.status(400).json({ msg: "Password errata!", param: "password", location: "body" });
+            if(!comparePsw) return res.status(400).json({ errors: ["Password errata!"] });
             req.session.username = user.Username;
             req.session.email = user.Email;
             req.session.isAdmin = user.IsAdmin;
             return res.status(200).json({ username: user.Username, email });
         } catch (error: any) {
-            return res.status(500).json({ errors: error });
+            return res.status(500).json({ errors: [error] });
         } 
     }
 );

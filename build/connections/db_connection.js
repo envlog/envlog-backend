@@ -12,4 +12,4 @@ var db_init = function () {
     var db = mongoose_1.default.connection;
     db.once('open', function () { return console.log("[DATABASE] Connected to mongodb://" + process.env.DB_HOST + ":" + process.env.DB_PORT + "/" + process.env.DB_NAME + "."); });
 };
-exports.default = db_init();
+exports.default = db_init;

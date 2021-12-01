@@ -30,19 +30,19 @@ registerRouter.post(
         const errors = validationResult(req);
         const errorsArray = errors.array();
         res.locals.error && errorsArray.push(res.locals.error);
-        if (errorsArray.length) return res.status(400).json({ errors: errorsArray });
+        if (errorsArray.length) return res.status(400).json({ errors: errorsArray.map(item => item.msg) });
         
         const { username, email, password } = req.body;
         
         try {
             const user = await User.findOne({ $or: [{ Email: email }, { Username: username }] }); // Controlliamo se esiste già la mail e/o l'username con $or
-            if (user) return res.status(400).json({ errors: { msg: "Email o nome utente già esistenti!" } }); //Controllo lato front-end se errors è un array
+            if (user) return res.status(400).json({ errors: [ "Email o nome utente già esistenti!" ] }); //Controllo lato front-end se errors è un array
             const hashPsw: string = await bcrypt.hash(password, Number(process.env.SALT_ROUNDS));
             const newUser = new User({ Username: username, Email: email, Password: hashPsw });
             await newUser.save();
             return res.status(201).json({ username, email });
         } catch (error: any) {
-            return res.status(500).json({ errors: { msg: error } });
+            return res.status(500).json({ errors: [error] });
         }
     }
 )

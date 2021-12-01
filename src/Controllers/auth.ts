@@ -1,6 +1,4 @@
 import { Request, Response, NextFunction } from 'express';
-import { Optional } from '../types';
-import { ValidationError } from 'express-validator';
 
 export const requiresNoAuth = (req: Request, res: Response, next: NextFunction) => {
     if (!req.session.username)
@@ -19,7 +17,7 @@ export const requiresAuth = (req: Request, res: Response, next: NextFunction) =>
 export const comparePassword = ({ body: { password, passwordConfirmation } }: Request, res: Response, next: NextFunction) => {
     if (password != passwordConfirmation)
         res.locals.error = {
-            msg: "Le password non corrispondono",
+            msg: "Le password non corrispondono!",
             param: "passwordConfirmation",
             location: "body"
         }
@@ -31,6 +29,6 @@ export const isAdmin = (req: Request, res: Response, next: NextFunction) => {
     //if (req.session.isAdmin)
         return next();
 
-    return res.status(401).json({ errors: { msg: "Non hai i permessi necessari!" }});
+    return res.status(401).json({ errors: ["Non hai i permessi necessari!"] });
 }
 

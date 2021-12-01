@@ -15,7 +15,7 @@
     </div>
     <script src="js/socket.io.min.js"></script>
     <script>
-        const socket = io("http://93.41.141.18:6969", { transports: ['websocket'] });
+        const socket = io("http://localhost:6969", { transports: ['websocket'] });
         socket.on('connect', () => console.log(`Connected with id ${socket.id}.`));
         socket.on('disconnect', () => console.error("Lost connection to server!"));
         const contentDiv = document.getElementById("content");

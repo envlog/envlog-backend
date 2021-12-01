@@ -1,6 +1,6 @@
 import mqttClient from './mqtt_client';
 import io from './socket';
-import SensorData from '../Models/sensor.model';
+import SensorData from '../Models/sensor_data.model';
 import { Sensors, MQTTPayload, SensorSchema } from '../types';
 import moment from 'moment';
 import { sensorsCollection } from '../Utils/sensors_loader';
@@ -9,8 +9,8 @@ let sensors: Sensors = {};
 
 export const startMqttClient = async () => {
    
-    mqttClient.on('message', async (topic, payload: Buffer) => { // Legge i dati in arrivo dal broker MQTT, li invia a tutti i socket connessi e li raccoglie in un buffer
-        //console.log(`[MQTT] Incoming ${topic}.`);              // Una volta raccolti N dati, essi vengolo salvati nel database e il buffer viene pulito
+    mqttClient.on('message', async (topic: string, payload: Buffer) => { // Legge i dati in arrivo dal broker MQTT, li invia a tutti i socket connessi e li raccoglie in un buffer
+        //console.log(`[MQTT] Incoming ${topic}.`);                      // Una volta raccolti N dati, essi vengolo salvati nel database e il buffer viene pulito
         
         const mqttObject: MQTTPayload = JSON.parse(payload.toString()); 
 

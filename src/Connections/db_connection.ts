@@ -9,4 +9,4 @@ const db_init = () => {
     db.once('open', () => console.log(`[DATABASE] Connected to mongodb://${process.env.DB_HOST}:${process.env.DB_PORT}/${process.env.DB_NAME}.`));
 }
 
-export default db_init();
+export default db_init;

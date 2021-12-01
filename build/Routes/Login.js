@@ -58,7 +58,7 @@ loginRouter.post('/login', auth_1.requiresNoAuth, (0, express_validator_1.body)(
             case 0:
                 errors = (0, express_validator_1.validationResult)(req);
                 if (!errors.isEmpty())
-                    return [2 /*return*/, res.status(400).json({ errors: errors.array() })];
+                    return [2 /*return*/, res.status(400).json({ errors: errors.array().map(function (item) { return item.msg; }) })];
                 _a = req.body, email = _a.email, password = _a.password;
                 _b.label = 1;
             case 1:
@@ -67,19 +67,19 @@ loginRouter.post('/login', auth_1.requiresNoAuth, (0, express_validator_1.body)(
             case 2:
                 user = _b.sent();
                 if (!user)
-                    return [2 /*return*/, res.status(400).json({ value: email, msg: "Email non trovata!", param: "email", location: "body" })];
+                    return [2 /*return*/, res.status(400).json({ errors: ["Email non trovata!"] })];
                 return [4 /*yield*/, bcrypt_1.default.compare(password, user.Password)];
             case 3:
                 comparePsw = _b.sent();
                 if (!comparePsw)
-                    return [2 /*return*/, res.status(400).json({ msg: "Password errata!", param: "password", location: "body" })];
+                    return [2 /*return*/, res.status(400).json({ errors: ["Password errata!"] })];
                 req.session.username = user.Username;
                 req.session.email = user.Email;
                 req.session.isAdmin = user.IsAdmin;
                 return [2 /*return*/, res.status(200).json({ username: user.Username, email: email })];
             case 4:
                 error_1 = _b.sent();
-                return [2 /*return*/, res.status(500).json({ errors: error_1 })];
+                return [2 /*return*/, res.status(500).json({ errors: [error_1] })];
             case 5: return [2 /*return*/];
         }
     });

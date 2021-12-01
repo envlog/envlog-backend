@@ -17,7 +17,7 @@ var comparePassword = function (_a, res, next) {
     var _b = _a.body, password = _b.password, passwordConfirmation = _b.passwordConfirmation;
     if (password != passwordConfirmation)
         res.locals.error = {
-            msg: "Le password non corrispondono",
+            msg: "Le password non corrispondono!",
             param: "passwordConfirmation",
             location: "body"
         };
@@ -27,6 +27,6 @@ exports.comparePassword = comparePassword;
 var isAdmin = function (req, res, next) {
     //if (req.session.isAdmin)
     return next();
-    return res.status(401).json({ errors: { msg: "Non hai i permessi necessari!" } });
+    return res.status(401).json({ errors: ["Non hai i permessi necessari!"] });
 };
 exports.isAdmin = isAdmin;

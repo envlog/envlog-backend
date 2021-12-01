@@ -60,7 +60,7 @@ registerRouter.post('/register', auth_1.requiresNoAuth, auth_1.comparePassword, 
                 errorsArray = errors.array();
                 res.locals.error && errorsArray.push(res.locals.error);
                 if (errorsArray.length)
-                    return [2 /*return*/, res.status(400).json({ errors: errorsArray })];
+                    return [2 /*return*/, res.status(400).json({ errors: errorsArray.map(function (item) { return item.msg; }) })];
                 _a = req.body, username = _a.username, email = _a.email, password = _a.password;
                 _b.label = 1;
             case 1:
@@ -69,7 +69,7 @@ registerRouter.post('/register', auth_1.requiresNoAuth, auth_1.comparePassword, 
             case 2:
                 user = _b.sent();
                 if (user)
-                    return [2 /*return*/, res.status(400).json({ errors: { msg: "Email o nome utente già esistenti!" } })]; //Controllo lato front-end se errors è un array
+                    return [2 /*return*/, res.status(400).json({ errors: ["Email o nome utente già esistenti!"] })]; //Controllo lato front-end se errors è un array
                 return [4 /*yield*/, bcrypt_1.default.hash(password, Number(process.env.SALT_ROUNDS))];
             case 3:
                 hashPsw = _b.sent();
@@ -80,7 +80,7 @@ registerRouter.post('/register', auth_1.requiresNoAuth, auth_1.comparePassword, 
                 return [2 /*return*/, res.status(201).json({ username: username, email: email })];
             case 5:
                 error_1 = _b.sent();
-                return [2 /*return*/, res.status(500).json({ errors: { msg: error_1 } })];
+                return [2 /*return*/, res.status(500).json({ errors: [error_1] })];
             case 6: return [2 /*return*/];
         }
     });

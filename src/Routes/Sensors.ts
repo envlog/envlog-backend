@@ -3,35 +3,43 @@ import { body, validationResult, param } from 'express-validator';
 import session from '../Connections/session';
 import { requiresAuth, isAdmin } from '../Controllers/auth';
 import Sensor from '../Models/sensors.model';
+import { isBoolean } from '../Utils/isBoolean';
 import { loadSensorsCollection } from '../Utils/sensors_loader';
 
 const sensorsRouter = express.Router();
 sensorsRouter.use(session);
 
-sensorsRouter.get('/', requiresAuth, async (req, res) => {
-    try {
-        const sensors = await Sensor.find();
-        return res.status(200).json(sensors);
-    } catch (error: any) {
-        return res.status(500).json({ errors: error });
+sensorsRouter.get(
+    '/', 
+    requiresAuth, 
+    async (req: Request<{}, {}, {}, { Type: string | undefined, Name: string | undefined, MCU_ID: string | undefined, Enabled: string | undefined }>, res: Response) => {
+        try {
+            const { ...filters } = req.query;
+            if (filters['Enabled'] && !isBoolean(filters['Enabled']))
+                return res.status(400).json({ errors: ["Enabled deve essere un valore booleano!"] });
+            const sensors = await Sensor.find({ $and: [filters] });
+            return res.status(200).json(sensors);
+        } catch (error: any) {
+            return res.status(500).json({ errors: [error] });
+        }
     }
-})
+)
 
 sensorsRouter.get(
-    '/:id/:type', 
+    '/:MCU_ID/:Type', 
     requiresAuth,
-    param('id').exists().withMessage('ID non trovato!'),
-    param('type').exists().withMessage('Tipo non trovato!'), 
-    async (req: Request<{ id: string, type: string }>, res: Response) => {
+    param('MCU_ID').exists().isLength({ min: 1 }).withMessage('ID non trovato!'),
+    param('Type').exists().isLength({ min: 1 }).withMessage('Tipo non trovato!'), 
+    async (req: Request<{ MCU_ID: string, Type: string }>, res: Response) => {
         const errors = validationResult(req);
-        if (!errors.isEmpty()) return res.status(400).json({ errors: errors.array() });
+        if (!errors.isEmpty()) return res.status(400).json({ errors: errors.array().map(item => item.msg) });
         try {
-            const { id, type } = req.params;
-            const sensor = await Sensor.findOne({ $and: [{ MCU_ID: id }, { Type: type }] });
+            const { MCU_ID, Type } = req.params;
+            const sensor = await Sensor.findOne({ $and: [{ MCU_ID }, { Type }] });
             if (sensor) return res.status(200).json(sensor);
-            return res.status(404).json({ errors: { msg: "Sensore non trovato!" } });
+            return res.status(404).json({ errors: ["Sensore non trovato!"] });
         } catch (error: any) {
-            return res.status(500).json({ errors: error });
+            return res.status(500).json({ errors: [error] });
         }
 })
 
@@ -39,92 +47,123 @@ sensorsRouter.post(
     '/', 
     requiresAuth, 
     isAdmin, 
-    body('id').exists().withMessage('ID non trovato!'),
-    body('name').exists().withMessage('Nome non trovato!'),
-    body('type').exists().withMessage('Tipo non trovato!'),
-    async (req: Request<{}, {}, { id: string, name: string, type: string, enabled: boolean | undefined }>, res: Response) => {
+    body('MCU_ID').exists().isLength({ min: 1 }).withMessage('ID non trovato!'),
+    body('Name').exists().isLength({ min: 1 }).withMessage('Nome non trovato!'),
+    body('Type').exists().isLength({ min: 1 }).withMessage('Tipo non trovato!'),
+    async (req: Request<{}, {}, { MCU_ID: string, Name: string, Type: string, Enabled: string | undefined }>, res: Response) => {
         const errors = validationResult(req);
-        if (!errors.isEmpty()) return res.status(400).json({ errors: errors.array() });
+        if (!errors.isEmpty()) return res.status(400).json({ errors: errors.array().map(item => item.msg) });
         try {
-            const { id, name, type, enabled } = req.body;
-            const sensor = await Sensor.findOne({ $or: [{ Name: name }, { $and: [{ MCU_ID: id }, { Type: type }] }] });
-            if (sensor) return res.status(409).json({ errors: { msg: "Esiste già un sensore con questo nome o con la combinazione ID/Tipo!" } });
-            const newSensor = new Sensor({ MCU_ID: id, Name: name, Type: type, Enabled: (enabled != undefined ? enabled : true) });
+            const { MCU_ID, Name, Type, Enabled } = req.body;
+            if (Enabled && !isBoolean(Enabled))
+                return res.status(400).json({ errors: ["Enabled deve essere un valore booleano!"] });
+            const sensor = await Sensor.findOne({ $or: [{ Name }, { $and: [{ MCU_ID }, { Type }] }] });
+            if (sensor) return res.status(409).json({ errors: ["Esiste già un sensore con questo nome o con la combinazione ID/Tipo!"] });
+            const newSensor = new Sensor({ MCU_ID, Name, Type, Enabled: (Enabled ? Enabled : true) });
             await newSensor.save();
             await loadSensorsCollection();
             return res.status(201).json({ msg: "Sensore aggiunto!", sensor: newSensor });
         } catch (error: any) {
-            return res.status(500).json({ errors: error });
+            return res.status(500).json({ errors: [error] });
         }
     }
 )
 
 sensorsRouter.put(
-    '/:id/:type', 
+    '/:MCU_ID/',
+    requiresAuth,
+    isAdmin,
+    param('MCU_ID').exists().isLength({ min: 1 }).withMessage('ID non trovato!'),
+    body('Enabled').exists().isBoolean().withMessage("Enabled non valido!"),
+    async (req: Request<{ MCU_ID: string }, {}, { Enabled: boolean }>, res: Response) => {
+        const errors = validationResult(req);
+        if (!errors.isEmpty()) return res.status(400).json({ errors: errors.array().map(item => item.msg) });
+        try {
+            const { MCU_ID } = req.params;
+            const { Enabled } = req.body;
+            const sensor = await Sensor.findOne({ MCU_ID });
+            if (!sensor) return res.status(404).json({ errors: ["Nessun sensore trovato con questo ID!"] });
+            const { modifiedCount } = await Sensor.updateMany({ MCU_ID }, { Enabled });
+            await loadSensorsCollection();
+            return res.status(200).json({ msg: `${modifiedCount} sensori aggiornati con successo!` });
+        } catch (error: any) {
+            return res.status(500).json({ errors: [error] });
+        }
+    }
+)
+
+sensorsRouter.put(
+    '/:MCU_ID/:Type', 
     requiresAuth, 
     isAdmin, 
-    param('id').exists().withMessage('ID non trovato!'),
-    param('type').exists().withMessage('Tipo non trovato!'), 
-    async (req: Request<{ id: string, type: string }, {}, { name: string | undefined, enabled: boolean | undefined }>, res: Response) => {
+    param('MCU_ID').exists().isLength({ min: 1 }).withMessage('ID non trovato!'),
+    param('Type').exists().isLength({ min: 1 }).withMessage("Tipo non trovato!"),
+    async (req: Request<{ MCU_ID: string, Type: string }, {}, { Name: string | undefined, Enabled: string | undefined }>, res: Response) => {
+        const errors = validationResult(req);
+        if (!errors.isEmpty()) return res.status(400).json({ errors: errors.array().map(item => item.msg) });
         try {
-            const { id, type } = req.params;
-            const { name, enabled } = req.body;
-            const sensor = await Sensor.findOne({ $and: [{ MCU_ID: id }, { Type: type }] });
-            if (!sensor) return res.status(404).json({ errors: { msg: "Sensore non trovato!" } });
-            const sensorWithName = await Sensor.findOne({ Name: name });
-            if (sensorWithName) return res.status(400).json({ errors: { msg: "Esiste già un sensore con questo nome!" } });
+            const { MCU_ID, Type } = req.params;
+            const { Name, Enabled } = req.body;
+            if (Enabled && !isBoolean(Enabled))
+                return res.status(400).json({ errors: ["Enabled deve essere un valore booleano!"] });
+            if (Name && !Name.length)
+                return res.status(400).json({ errors: ["Nome non valido!"] });
+            const sensor = await Sensor.findOne({ $and: [{ MCU_ID }, { Type }] });
+            if (!sensor) return res.status(404).json({ errors: ["Sensore non trovato!"] });
+            const sensorWithName = await Sensor.findOne({ Name });
+            if (sensorWithName) return res.status(400).json({ errors: ["Esiste già un sensore con questo nome!"] });
             await Sensor.updateOne(sensor, {
-                Name: name ? name : sensor.Name,
-                Enabled: enabled != undefined ? enabled : sensor.Enabled
+                Name: Name ? Name : sensor.Name,
+                Enabled: Enabled ? Enabled : sensor.Enabled 
             });
             await sensor.save();
             await loadSensorsCollection();
-            return res.status(200).json({ msg: "Dati sensore aggiornati con successo!", name, enabled });
+            return res.status(200).json({ msg: "Dati sensore aggiornati con successo!", Name, Enabled });
         } catch (error: any) {
-            return res.status(500).json({ errors: error });
+            return res.status(500).json({ errors: [error] });
         }
     }
 )
 
 sensorsRouter.delete(
-    '/:id/:type', 
+    '/:MCU_ID/:Type', 
     requiresAuth, 
     isAdmin,
-    param('id').exists().withMessage('ID non trovato!'),
-    param('type').exists().withMessage('Tipo non trovato!'),  
-    async (req: Request<{ id: string, type: string }>, res: Response) => {
+    param('MCU_ID').exists().isLength({ min: 1 }).withMessage('ID non trovato!'),
+    param('Type').exists().isLength({ min: 1 }).withMessage('Tipo non trovato!'),  
+    async (req: Request<{ MCU_ID: string, Type: string }>, res: Response) => {
         const errors = validationResult(req);
-        if (!errors.isEmpty()) return res.status(400).json({ errors: errors.array() });
+        if (!errors.isEmpty()) return res.status(400).json({ errors: errors.array().map(item => item.msg) });
         try {
-            const { id, type } = req.params;
-            const sensor = await Sensor.findOne({ $and: [{ MCU_ID: id }, { Type: type }] });
-            if (!sensor) return res.status(404).json({ errors: { msg: "Sensore non trovato!" } });
+            const { MCU_ID, Type } = req.params;
+            const sensor = await Sensor.findOne({ $and: [{ MCU_ID }, { Type }] });
+            if (!sensor) return res.status(404).json({ errors: ["Sensore non trovato!"] });
             await Sensor.deleteOne(sensor);
             await loadSensorsCollection();
             return res.status(200).json({ msg: "Sensore cancellato", sensor });
         } catch (error: any) {
-            return res.status(500).json({ errors: error });
+            return res.status(500).json({ errors: [error] });
         }
     }
 )
 
 sensorsRouter.delete(
-    '/:id', 
+    '/:MCU_ID', 
     requiresAuth, 
     isAdmin,
-    param('id').exists().withMessage('ID non trovato!'),
-    async (req: Request<{ id: string}>, res: Response) => {
+    param('MCU_ID').exists().isLength({ min: 1 }).withMessage('ID non trovato!'),
+    async (req: Request<{ MCU_ID: string }>, res: Response) => {
         const errors = validationResult(req);
-        if (!errors.isEmpty()) return res.status(400).json({ errors: errors.array() });
+        if (!errors.isEmpty()) return res.status(400).json({ errors: errors.array().map(item => item.msg) });
         try {
-            const { id } = req.params;
-            const sensors = await Sensor.find({ MCU_ID: id });
-            if (!sensors) return res.status(404).json({ errors: { msg: "ID sensore non trovato!" } });
-            await Sensor.deleteMany({ MCU_ID: id });
+            const { MCU_ID } = req.params;
+            const sensors = await Sensor.find({ MCU_ID });
+            if (!sensors.length) return res.status(404).json({ errors: ["ID sensore non trovato!"] });
+            const { deletedCount } = await Sensor.deleteMany({ MCU_ID });
             await loadSensorsCollection();
-            return res.status(200).json({ msg: "Sensori cancellati!", sensors });
+            return res.status(200).json({ msg: `${deletedCount} sensori cancellati!`, sensors });
         } catch (error: any) {
-            return res.status(500).json({ errors: error });
+            return res.status(500).json({ errors: [error] });
         }
     }
 )

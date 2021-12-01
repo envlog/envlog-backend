@@ -6,7 +6,7 @@ Object.defineProperty(exports, "__esModule", { value: true });
 var dotenv_config_1 = __importDefault(require("./Config/dotenv_config"));
 (0, dotenv_config_1.default)();
 var db_connection_1 = __importDefault(require("./Connections/db_connection"));
-db_connection_1.default;
+(0, db_connection_1.default)();
 var sensors_loader_1 = require("./Utils/sensors_loader");
 (0, sensors_loader_1.loadSensorsCollection)();
 var startMqttClient_1 = require("./Connections/startMqttClient");
