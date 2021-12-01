@@ -1,4 +1,5 @@
 import { Request, Response, NextFunction } from 'express';
+import { CustomValidator } from 'express-validator';
 
 export const requiresNoAuth = (req: Request, res: Response, next: NextFunction) => {
     if (!req.session.username)
@@ -14,18 +15,14 @@ export const requiresAuth = (req: Request, res: Response, next: NextFunction) =>
     return res.status(401).redirect('/auth/login');
 }
 
-export const comparePassword = ({ body: { password, passwordConfirmation } }: Request, res: Response, next: NextFunction) => {
-    if (password != passwordConfirmation)
-        res.locals.error = {
-            msg: "Le password non corrispondono!",
-            param: "passwordConfirmation",
-            location: "body"
-        }
+export const passwordsMatch: CustomValidator = (passwordConfirmation: string, { req }) => {    
+    if (passwordConfirmation != req.body.password)
+        throw "Le password non corrispondono!";
 
-    return next();
+    return true;
 }
 
-export const isAdmin = (req: Request, res: Response, next: NextFunction) => {
+export const userIsAdmin = (req: Request, res: Response, next: NextFunction) => {
     //if (req.session.isAdmin)
         return next();
 

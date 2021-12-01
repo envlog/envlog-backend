@@ -1,10 +1,11 @@
 import express, { Request, Response } from 'express';
-import { body, validationResult, param } from 'express-validator';
+import { body, validationResult, param, query } from 'express-validator';
 import session from '../Connections/session';
-import { requiresAuth, isAdmin } from '../Controllers/auth';
+import { requiresAuth, userIsAdmin } from '../Controllers/auth';
 import Sensor from '../Models/sensors.model';
-import { isBoolean } from '../Utils/isBoolean';
 import { loadSensorsCollection } from '../Utils/sensors_loader';
+import { nanoid } from 'nanoid';
+import { isBoolean, validIfExists } from '../Controllers/validations';
 
 const sensorsRouter = express.Router();
 sensorsRouter.use(session);
@@ -12,11 +13,15 @@ sensorsRouter.use(session);
 sensorsRouter.get(
     '/', 
     requiresAuth, 
+    query('Enabled').custom(isBoolean).withMessage("Enabled deve essere true o false!"),
+    query('Type').custom(validIfExists).withMessage("Tipo non valido!"),
+    query('Name').custom(validIfExists).withMessage("Nome non valido!"),
+    query('MCU_ID').custom(validIfExists).withMessage("MCU_ID non valido!"),
     async (req: Request<{}, {}, {}, { Type: string | undefined, Name: string | undefined, MCU_ID: string | undefined, Enabled: string | undefined }>, res: Response) => {
+        const errors = validationResult(req);
+        if (!errors.isEmpty()) return res.status(400).json({ errors: errors.array().map(item => item.msg) });
         try {
             const { ...filters } = req.query;
-            if (filters['Enabled'] && !isBoolean(filters['Enabled']))
-                return res.status(400).json({ errors: ["Enabled deve essere un valore booleano!"] });
             const sensors = await Sensor.find({ $and: [filters] });
             return res.status(200).json(sensors);
         } catch (error: any) {
@@ -41,22 +46,22 @@ sensorsRouter.get(
         } catch (error: any) {
             return res.status(500).json({ errors: [error] });
         }
-})
+    }
+)
 
 sensorsRouter.post(
     '/', 
     requiresAuth, 
-    isAdmin, 
+    userIsAdmin, 
     body('MCU_ID').exists().isLength({ min: 1 }).withMessage('ID non trovato!'),
-    body('Name').exists().isLength({ min: 1 }).withMessage('Nome non trovato!'),
     body('Type').exists().isLength({ min: 1 }).withMessage('Tipo non trovato!'),
-    async (req: Request<{}, {}, { MCU_ID: string, Name: string, Type: string, Enabled: string | undefined }>, res: Response) => {
+    body('Enabled').custom(isBoolean).withMessage("Enabled deve essere true o false!"),
+    async (req: Request<{}, {}, { MCU_ID: string, Name: string | undefined, Type: string, Enabled: string | undefined }>, res: Response) => {
         const errors = validationResult(req);
         if (!errors.isEmpty()) return res.status(400).json({ errors: errors.array().map(item => item.msg) });
         try {
-            const { MCU_ID, Name, Type, Enabled } = req.body;
-            if (Enabled && !isBoolean(Enabled))
-                return res.status(400).json({ errors: ["Enabled deve essere un valore booleano!"] });
+            var { MCU_ID, Name, Type, Enabled } = req.body;
+            if (!Name) Name = `${Type}_${nanoid(7)}`;
             const sensor = await Sensor.findOne({ $or: [{ Name }, { $and: [{ MCU_ID }, { Type }] }] });
             if (sensor) return res.status(409).json({ errors: ["Esiste già un sensore con questo nome o con la combinazione ID/Tipo!"] });
             const newSensor = new Sensor({ MCU_ID, Name, Type, Enabled: (Enabled ? Enabled : true) });
@@ -72,9 +77,9 @@ sensorsRouter.post(
 sensorsRouter.put(
     '/:MCU_ID/',
     requiresAuth,
-    isAdmin,
+    userIsAdmin,
     param('MCU_ID').exists().isLength({ min: 1 }).withMessage('ID non trovato!'),
-    body('Enabled').exists().isBoolean().withMessage("Enabled non valido!"),
+    body('Enabled').exists().isBoolean().withMessage("Enabled deve essere true o false!"),
     async (req: Request<{ MCU_ID: string }, {}, { Enabled: boolean }>, res: Response) => {
         const errors = validationResult(req);
         if (!errors.isEmpty()) return res.status(400).json({ errors: errors.array().map(item => item.msg) });
@@ -95,19 +100,17 @@ sensorsRouter.put(
 sensorsRouter.put(
     '/:MCU_ID/:Type', 
     requiresAuth, 
-    isAdmin, 
+    userIsAdmin, 
     param('MCU_ID').exists().isLength({ min: 1 }).withMessage('ID non trovato!'),
     param('Type').exists().isLength({ min: 1 }).withMessage("Tipo non trovato!"),
+    body('Enabled').custom(isBoolean).withMessage("Enabled deve essere true o false!"),
+    body('Name').custom(validIfExists).withMessage("Il nome non è valido!"),
     async (req: Request<{ MCU_ID: string, Type: string }, {}, { Name: string | undefined, Enabled: string | undefined }>, res: Response) => {
         const errors = validationResult(req);
         if (!errors.isEmpty()) return res.status(400).json({ errors: errors.array().map(item => item.msg) });
         try {
             const { MCU_ID, Type } = req.params;
             const { Name, Enabled } = req.body;
-            if (Enabled && !isBoolean(Enabled))
-                return res.status(400).json({ errors: ["Enabled deve essere un valore booleano!"] });
-            if (Name && !Name.length)
-                return res.status(400).json({ errors: ["Nome non valido!"] });
             const sensor = await Sensor.findOne({ $and: [{ MCU_ID }, { Type }] });
             if (!sensor) return res.status(404).json({ errors: ["Sensore non trovato!"] });
             const sensorWithName = await Sensor.findOne({ Name });
@@ -128,7 +131,7 @@ sensorsRouter.put(
 sensorsRouter.delete(
     '/:MCU_ID/:Type', 
     requiresAuth, 
-    isAdmin,
+    userIsAdmin,
     param('MCU_ID').exists().isLength({ min: 1 }).withMessage('ID non trovato!'),
     param('Type').exists().isLength({ min: 1 }).withMessage('Tipo non trovato!'),  
     async (req: Request<{ MCU_ID: string, Type: string }>, res: Response) => {
@@ -150,7 +153,7 @@ sensorsRouter.delete(
 sensorsRouter.delete(
     '/:MCU_ID', 
     requiresAuth, 
-    isAdmin,
+    userIsAdmin,
     param('MCU_ID').exists().isLength({ min: 1 }).withMessage('ID non trovato!'),
     async (req: Request<{ MCU_ID: string }>, res: Response) => {
         const errors = validationResult(req);

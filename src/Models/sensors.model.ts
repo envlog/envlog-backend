@@ -8,6 +8,7 @@ const SensorsSchema = new mongoose.Schema(
         },
         Name: {
             type: String,
+            required: true,
             unique: true
         },
         Type: {
@@ -17,10 +18,11 @@ const SensorsSchema = new mongoose.Schema(
         Enabled: {
             type: Boolean,
             default: true
-        }
+        },
     }
 )
 
 const Sensor = mongoose.model('Sensor', SensorsSchema);
+
 
 export default Sensor;

@@ -3,7 +3,7 @@ import User from '../Models/user.model';
 import { body, validationResult } from 'express-validator';
 import bcrypt from 'bcrypt';
 import session from '../Connections/session';
-import { comparePassword, requiresNoAuth } from '../Controllers/auth';
+import { passwordsMatch, requiresNoAuth } from '../Controllers/auth';
 import { staticFolder } from '../Config/path';
 
 const registerRouter = express.Router();
@@ -20,17 +20,14 @@ registerRouter.get(
 registerRouter.post(
     '/register',
     requiresNoAuth,
-    comparePassword,
     body('username').isLength({ min: Number(process.env.MIN_USERNAME_LEN) }).trim().escape().withMessage(`Il nome utente deve contenere almeno ${process.env.MIN_USERNAME_LEN} caratteri!`),
     body('email').isEmail().normalizeEmail().withMessage("L'email non è valida!"),
     body('password').isLength({ min: Number(process.env.MIN_PASS_LEN) }).trim().escape().withMessage(`La password deve contenere almeno ${process.env.MIN_PASS_LEN} caratteri!`),
-    
+    body('passwordConfirmation').custom(passwordsMatch),
     async (req: Request<{}, {}, { username: string, email: string, password: string }>, res: Response) => {
 
         const errors = validationResult(req);
-        const errorsArray = errors.array();
-        res.locals.error && errorsArray.push(res.locals.error);
-        if (errorsArray.length) return res.status(400).json({ errors: errorsArray.map(item => item.msg) });
+        if (!errors.isEmpty()) return res.status(400).json({ errors: errors.array().map(item => item.msg) });
         
         const { username, email, password } = req.body;
         

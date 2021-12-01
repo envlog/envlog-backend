@@ -11,6 +11,7 @@ var SensorsSchema = new mongoose_1.default.Schema({
     },
     Name: {
         type: String,
+        required: true,
         unique: true
     },
     Type: {
@@ -20,7 +21,7 @@ var SensorsSchema = new mongoose_1.default.Schema({
     Enabled: {
         type: Boolean,
         default: true
-    }
+    },
 });
 var Sensor = mongoose_1.default.model('Sensor', SensorsSchema);
 exports.default = Sensor;
