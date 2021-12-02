@@ -5,7 +5,7 @@ import { requiresAuth, userIsAdmin } from '../Controllers/auth';
 import Sensor from '../Models/sensors.model';
 import { loadSensorsCollection } from '../Utils/sensors_loader';
 import { nanoid } from 'nanoid';
-import { isBoolean, validIfExists } from '../Controllers/validations';
+import { isBoolean, validIfExists } from '../Controllers/validation';
 
 const sensorsRouter = express.Router();
 sensorsRouter.use(session);

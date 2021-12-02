@@ -1,10 +1,10 @@
-import dotenv_config from './Config/dotenv_config';
-dotenv_config();
-import db_connection from './Connections/db_connection';
-db_connection();
+import dotenvConfig from './Config/dotenv_config';
+dotenvConfig();
+import dbConnection from './Connections/db_connection';
+dbConnection();
 import { loadSensorsCollection } from './Utils/sensors_loader';
 loadSensorsCollection();
-import { startMqttClient } from './Connections/startMqttClient';
+import { startMqttClient } from './Connections/start_mqtt_client';
 startMqttClient();
 import express from 'express';
 import loginRouter from './Routes/Login';

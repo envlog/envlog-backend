@@ -57,10 +57,10 @@ var auth_1 = require("../Controllers/auth");
 var sensors_model_1 = __importDefault(require("../Models/sensors.model"));
 var sensors_loader_1 = require("../Utils/sensors_loader");
 var nanoid_1 = require("nanoid");
-var validations_1 = require("../Controllers/validations");
+var validation_1 = require("../Controllers/validation");
 var sensorsRouter = express_1.default.Router();
 sensorsRouter.use(session_1.default);
-sensorsRouter.get('/', auth_1.requiresAuth, (0, express_validator_1.query)('Enabled').custom(validations_1.isBoolean).withMessage("Enabled deve essere true o false!"), (0, express_validator_1.query)('Type').custom(validations_1.validIfExists).withMessage("Tipo non valido!"), (0, express_validator_1.query)('Name').custom(validations_1.validIfExists).withMessage("Nome non valido!"), (0, express_validator_1.query)('MCU_ID').custom(validations_1.validIfExists).withMessage("MCU_ID non valido!"), function (req, res) { return __awaiter(void 0, void 0, void 0, function () {
+sensorsRouter.get('/', auth_1.requiresAuth, (0, express_validator_1.query)('Enabled').custom(validation_1.isBoolean).withMessage("Enabled deve essere true o false!"), (0, express_validator_1.query)('Type').custom(validation_1.validIfExists).withMessage("Tipo non valido!"), (0, express_validator_1.query)('Name').custom(validation_1.validIfExists).withMessage("Nome non valido!"), (0, express_validator_1.query)('MCU_ID').custom(validation_1.validIfExists).withMessage("MCU_ID non valido!"), function (req, res) { return __awaiter(void 0, void 0, void 0, function () {
     var errors, filters, sensors, error_1;
     return __generator(this, function (_a) {
         switch (_a.label) {
@@ -108,7 +108,7 @@ sensorsRouter.get('/:MCU_ID/:Type', auth_1.requiresAuth, (0, express_validator_1
         }
     });
 }); });
-sensorsRouter.post('/', auth_1.requiresAuth, auth_1.userIsAdmin, (0, express_validator_1.body)('MCU_ID').exists().isLength({ min: 1 }).withMessage('ID non trovato!'), (0, express_validator_1.body)('Type').exists().isLength({ min: 1 }).withMessage('Tipo non trovato!'), (0, express_validator_1.body)('Enabled').custom(validations_1.isBoolean).withMessage("Enabled deve essere true o false!"), function (req, res) { return __awaiter(void 0, void 0, void 0, function () {
+sensorsRouter.post('/', auth_1.requiresAuth, auth_1.userIsAdmin, (0, express_validator_1.body)('MCU_ID').exists().isLength({ min: 1 }).withMessage('ID non trovato!'), (0, express_validator_1.body)('Type').exists().isLength({ min: 1 }).withMessage('Tipo non trovato!'), (0, express_validator_1.body)('Enabled').custom(validation_1.isBoolean).withMessage("Enabled deve essere true o false!"), function (req, res) { return __awaiter(void 0, void 0, void 0, function () {
     var errors, _a, MCU_ID, Name, Type, Enabled, sensor, newSensor, error_3;
     return __generator(this, function (_b) {
         switch (_b.label) {
@@ -174,7 +174,7 @@ sensorsRouter.put('/:MCU_ID/', auth_1.requiresAuth, auth_1.userIsAdmin, (0, expr
         }
     });
 }); });
-sensorsRouter.put('/:MCU_ID/:Type', auth_1.requiresAuth, auth_1.userIsAdmin, (0, express_validator_1.param)('MCU_ID').exists().isLength({ min: 1 }).withMessage('ID non trovato!'), (0, express_validator_1.param)('Type').exists().isLength({ min: 1 }).withMessage("Tipo non trovato!"), (0, express_validator_1.body)('Enabled').custom(validations_1.isBoolean).withMessage("Enabled deve essere true o false!"), (0, express_validator_1.body)('Name').custom(validations_1.validIfExists).withMessage("Il nome non è valido!"), function (req, res) { return __awaiter(void 0, void 0, void 0, function () {
+sensorsRouter.put('/:MCU_ID/:Type', auth_1.requiresAuth, auth_1.userIsAdmin, (0, express_validator_1.param)('MCU_ID').exists().isLength({ min: 1 }).withMessage('ID non trovato!'), (0, express_validator_1.param)('Type').exists().isLength({ min: 1 }).withMessage("Tipo non trovato!"), (0, express_validator_1.body)('Enabled').custom(validation_1.isBoolean).withMessage("Enabled deve essere true o false!"), (0, express_validator_1.body)('Name').custom(validation_1.validIfExists).withMessage("Il nome non è valido!"), function (req, res) { return __awaiter(void 0, void 0, void 0, function () {
     var errors, _a, MCU_ID, Type, _b, Name, Enabled, sensor, sensorWithName, error_5;
     return __generator(this, function (_c) {
         switch (_c.label) {
