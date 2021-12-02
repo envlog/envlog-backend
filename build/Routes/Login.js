@@ -48,10 +48,10 @@ var auth_1 = require("../Controllers/auth");
 var path_1 = require("../Config/path");
 var loginRouter = express_1.default.Router();
 loginRouter.use(session_1.default);
-loginRouter.get('/login', auth_1.requiresNoAuth, function (req, res) {
+loginRouter.get('/', auth_1.requiresNoAuth, function (req, res) {
     return res.status(200).sendFile('login.html', { root: path_1.staticFolder });
 });
-loginRouter.post('/login', auth_1.requiresNoAuth, (0, express_validator_1.body)('email').isEmail().normalizeEmail().withMessage("L'email non è valida!"), (0, express_validator_1.body)('password').isLength({ min: Number(process.env.MIN_PASS_LEN) }).trim().escape().withMessage('La password non è valida!'), function (req, res) { return __awaiter(void 0, void 0, void 0, function () {
+loginRouter.post('/', auth_1.requiresNoAuth, (0, express_validator_1.body)('email').isEmail().normalizeEmail().withMessage("Email non valida!"), (0, express_validator_1.body)('password').isLength({ min: Number(process.env.MIN_PASS_LEN) }).trim().escape().withMessage('Password non valida!'), function (req, res) { return __awaiter(void 0, void 0, void 0, function () {
     var errors, _a, email, password, user, comparePsw, error_1;
     return __generator(this, function (_b) {
         switch (_b.label) {

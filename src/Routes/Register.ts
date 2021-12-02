@@ -10,15 +10,15 @@ const registerRouter = express.Router();
 registerRouter.use(session);
 
 registerRouter.get(
-    '/register', 
+    '/', 
     requiresNoAuth, 
     (req, res) => {
         return res.status(200).sendFile('register.html', { root: staticFolder });
     }
-)
+);
 
 registerRouter.post(
-    '/register',
+    '/',
     requiresNoAuth,
     body('username').isLength({ min: Number(process.env.MIN_USERNAME_LEN) }).trim().escape().withMessage(`Il nome utente deve contenere almeno ${process.env.MIN_USERNAME_LEN} caratteri!`),
     body('email').isEmail().normalizeEmail().withMessage("L'email non è valida!"),
@@ -42,6 +42,6 @@ registerRouter.post(
             return res.status(500).json({ errors: [error] });
         }
     }
-)
+);
 
 export default registerRouter;

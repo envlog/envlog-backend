@@ -19,9 +19,9 @@ const app = express();
 app.use(express.json());
 app.use(express.urlencoded({ extended: true }));
 app.use('/', indexRouter); 
-app.use('/auth', loginRouter);
-app.use('/auth', registerRouter);
-app.use('/auth', logoutRouter);
+app.use('/auth/login', loginRouter);
+app.use('/auth/register', registerRouter);
+app.use('/auth/logout', logoutRouter);
 app.use('/sensors', sensorsRouter);
 app.use(express.static(staticFolder));
 

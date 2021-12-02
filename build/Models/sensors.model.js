@@ -22,6 +22,11 @@ var SensorsSchema = new mongoose_1.default.Schema({
         type: Boolean,
         default: true
     },
+    Group: {
+        type: String,
+        default: null,
+        required: false
+    }
 });
 var Sensor = mongoose_1.default.model('Sensor', SensorsSchema);
 exports.default = Sensor;

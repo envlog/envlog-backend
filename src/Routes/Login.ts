@@ -10,7 +10,7 @@ const loginRouter = express.Router();
 loginRouter.use(session);
 
 loginRouter.get(
-    '/login', 
+    '/', 
     requiresNoAuth, 
     (req, res) => {
         return res.status(200).sendFile('login.html', { root: staticFolder });
@@ -18,10 +18,10 @@ loginRouter.get(
 );
 
 loginRouter.post(
-    '/login', 
+    '/', 
     requiresNoAuth,
-    body('email').isEmail().normalizeEmail().withMessage("L'email non è valida!"),
-    body('password').isLength({ min: Number(process.env.MIN_PASS_LEN) }).trim().escape().withMessage('La password non è valida!'),
+    body('email').isEmail().normalizeEmail().withMessage("Email non valida!"),
+    body('password').isLength({ min: Number(process.env.MIN_PASS_LEN) }).trim().escape().withMessage('Password non valida!'),
     async (req: Request<{}, {}, { email: string, password: string }>, res: Response) => {
         
         const errors = validationResult(req);

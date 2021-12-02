@@ -60,7 +60,7 @@ var nanoid_1 = require("nanoid");
 var validation_1 = require("../Controllers/validation");
 var sensorsRouter = express_1.default.Router();
 sensorsRouter.use(session_1.default);
-sensorsRouter.get('/', auth_1.requiresAuth, (0, express_validator_1.query)('Enabled').custom(validation_1.isBoolean).withMessage("Enabled deve essere true o false!"), (0, express_validator_1.query)('Type').custom(validation_1.validIfExists).withMessage("Tipo non valido!"), (0, express_validator_1.query)('Name').custom(validation_1.validIfExists).withMessage("Nome non valido!"), (0, express_validator_1.query)('MCU_ID').custom(validation_1.validIfExists).withMessage("MCU_ID non valido!"), function (req, res) { return __awaiter(void 0, void 0, void 0, function () {
+sensorsRouter.get('/', auth_1.requiresAuth, (0, express_validator_1.query)('Enabled').custom(validation_1.isBoolean).withMessage("Enabled deve essere true o false!"), (0, express_validator_1.query)('Type').custom(validation_1.validIfExists).withMessage("Tipo non valido!"), (0, express_validator_1.query)('Name').custom(validation_1.validIfExists).withMessage("Nome non valido!"), (0, express_validator_1.query)('MCU_ID').custom(validation_1.validIfExists).withMessage("MCU_ID non valido!"), (0, express_validator_1.query)('Group').custom(validation_1.validIfExists).withMessage("Gruppo non valido!"), function (req, res) { return __awaiter(void 0, void 0, void 0, function () {
     var errors, filters, sensors, error_1;
     return __generator(this, function (_a) {
         switch (_a.label) {
@@ -72,6 +72,8 @@ sensorsRouter.get('/', auth_1.requiresAuth, (0, express_validator_1.query)('Enab
             case 1:
                 _a.trys.push([1, 3, , 4]);
                 filters = __rest(req.query, []);
+                if (filters.Group === 'null')
+                    filters.Group = null;
                 return [4 /*yield*/, sensors_model_1.default.find({ $and: [filters] })];
             case 2:
                 sensors = _a.sent();
@@ -83,8 +85,26 @@ sensorsRouter.get('/', auth_1.requiresAuth, (0, express_validator_1.query)('Enab
         }
     });
 }); });
-sensorsRouter.get('/:MCU_ID/:Type', auth_1.requiresAuth, (0, express_validator_1.param)('MCU_ID').exists().isLength({ min: 1 }).withMessage('ID non trovato!'), (0, express_validator_1.param)('Type').exists().isLength({ min: 1 }).withMessage('Tipo non trovato!'), function (req, res) { return __awaiter(void 0, void 0, void 0, function () {
-    var errors, _a, MCU_ID, Type, sensor, error_2;
+sensorsRouter.get('/groups/:Group', auth_1.requiresAuth, (0, express_validator_1.param)('Group').exists().isLength({ min: 1 }).withMessage('Gruppo non valido!'), function (req, res) { return __awaiter(void 0, void 0, void 0, function () {
+    var Group, sensors, error_2;
+    return __generator(this, function (_a) {
+        switch (_a.label) {
+            case 0:
+                _a.trys.push([0, 2, , 3]);
+                Group = req.params.Group;
+                return [4 /*yield*/, sensors_model_1.default.find({ Group: Group })];
+            case 1:
+                sensors = _a.sent();
+                return [2 /*return*/, res.status(200).json(sensors)];
+            case 2:
+                error_2 = _a.sent();
+                return [2 /*return*/, res.status(500).json({ errors: [error_2] })];
+            case 3: return [2 /*return*/];
+        }
+    });
+}); });
+sensorsRouter.get('/:MCU_ID/:Type', auth_1.requiresAuth, (0, express_validator_1.param)('MCU_ID').exists().isLength({ min: 1 }).withMessage('ID non valido!'), (0, express_validator_1.param)('Type').exists().isLength({ min: 1 }).withMessage('Tipo non valido!'), function (req, res) { return __awaiter(void 0, void 0, void 0, function () {
+    var errors, _a, MCU_ID, Type, sensor, error_3;
     return __generator(this, function (_b) {
         switch (_b.label) {
             case 0:
@@ -102,14 +122,14 @@ sensorsRouter.get('/:MCU_ID/:Type', auth_1.requiresAuth, (0, express_validator_1
                     return [2 /*return*/, res.status(200).json(sensor)];
                 return [2 /*return*/, res.status(404).json({ errors: ["Sensore non trovato!"] })];
             case 3:
-                error_2 = _b.sent();
-                return [2 /*return*/, res.status(500).json({ errors: [error_2] })];
+                error_3 = _b.sent();
+                return [2 /*return*/, res.status(500).json({ errors: [error_3] })];
             case 4: return [2 /*return*/];
         }
     });
 }); });
-sensorsRouter.post('/', auth_1.requiresAuth, auth_1.userIsAdmin, (0, express_validator_1.body)('MCU_ID').exists().isLength({ min: 1 }).withMessage('ID non trovato!'), (0, express_validator_1.body)('Type').exists().isLength({ min: 1 }).withMessage('Tipo non trovato!'), (0, express_validator_1.body)('Enabled').custom(validation_1.isBoolean).withMessage("Enabled deve essere true o false!"), function (req, res) { return __awaiter(void 0, void 0, void 0, function () {
-    var errors, _a, MCU_ID, Name, Type, Enabled, sensor, newSensor, error_3;
+sensorsRouter.post('/', auth_1.requiresAuth, auth_1.userIsAdmin, (0, express_validator_1.body)('MCU_ID').exists().isLength({ min: 1 }).withMessage('ID non valido!'), (0, express_validator_1.body)('Type').exists().isLength({ min: 1 }).withMessage('Tipo non valido!'), (0, express_validator_1.body)('Enabled').custom(validation_1.isBoolean).withMessage("Enabled deve essere true o false!"), (0, express_validator_1.body)('Group').custom(validation_1.validIfExists).withMessage("Gruppo non valido!"), function (req, res) { return __awaiter(void 0, void 0, void 0, function () {
+    var errors, _a, MCU_ID, Name, Type, Enabled, Group, sensor, newSensor, error_4;
     return __generator(this, function (_b) {
         switch (_b.label) {
             case 0:
@@ -119,15 +139,17 @@ sensorsRouter.post('/', auth_1.requiresAuth, auth_1.userIsAdmin, (0, express_val
                 _b.label = 1;
             case 1:
                 _b.trys.push([1, 5, , 6]);
-                _a = req.body, MCU_ID = _a.MCU_ID, Name = _a.Name, Type = _a.Type, Enabled = _a.Enabled;
+                _a = req.body, MCU_ID = _a.MCU_ID, Name = _a.Name, Type = _a.Type, Enabled = _a.Enabled, Group = _a.Group;
                 if (!Name)
                     Name = Type + "_" + (0, nanoid_1.nanoid)(7);
+                if (!Group)
+                    Group = null;
                 return [4 /*yield*/, sensors_model_1.default.findOne({ $or: [{ Name: Name }, { $and: [{ MCU_ID: MCU_ID }, { Type: Type }] }] })];
             case 2:
                 sensor = _b.sent();
                 if (sensor)
-                    return [2 /*return*/, res.status(409).json({ errors: ["Esiste già un sensore con questo nome o con la combinazione ID/Tipo!"] })];
-                newSensor = new sensors_model_1.default({ MCU_ID: MCU_ID, Name: Name, Type: Type, Enabled: (Enabled ? Enabled : true) });
+                    return [2 /*return*/, res.status(409).json({ errors: ["Esiste già un sensore con questo nome o con la combinazione ID/Tipo!"], sensor: sensor })];
+                newSensor = new sensors_model_1.default({ MCU_ID: MCU_ID, Name: Name, Type: Type, Enabled: (Enabled ? Enabled : true), Group: Group });
                 return [4 /*yield*/, newSensor.save()];
             case 3:
                 _b.sent();
@@ -136,46 +158,48 @@ sensorsRouter.post('/', auth_1.requiresAuth, auth_1.userIsAdmin, (0, express_val
                 _b.sent();
                 return [2 /*return*/, res.status(201).json({ msg: "Sensore aggiunto!", sensor: newSensor })];
             case 5:
-                error_3 = _b.sent();
-                return [2 /*return*/, res.status(500).json({ errors: [error_3] })];
-            case 6: return [2 /*return*/];
-        }
-    });
-}); });
-sensorsRouter.put('/:MCU_ID/', auth_1.requiresAuth, auth_1.userIsAdmin, (0, express_validator_1.param)('MCU_ID').exists().isLength({ min: 1 }).withMessage('ID non trovato!'), (0, express_validator_1.body)('Enabled').exists().isBoolean().withMessage("Enabled deve essere true o false!"), function (req, res) { return __awaiter(void 0, void 0, void 0, function () {
-    var errors, MCU_ID, Enabled, sensor, modifiedCount, error_4;
-    return __generator(this, function (_a) {
-        switch (_a.label) {
-            case 0:
-                errors = (0, express_validator_1.validationResult)(req);
-                if (!errors.isEmpty())
-                    return [2 /*return*/, res.status(400).json({ errors: errors.array().map(function (item) { return item.msg; }) })];
-                _a.label = 1;
-            case 1:
-                _a.trys.push([1, 5, , 6]);
-                MCU_ID = req.params.MCU_ID;
-                Enabled = req.body.Enabled;
-                return [4 /*yield*/, sensors_model_1.default.findOne({ MCU_ID: MCU_ID })];
-            case 2:
-                sensor = _a.sent();
-                if (!sensor)
-                    return [2 /*return*/, res.status(404).json({ errors: ["Nessun sensore trovato con questo ID!"] })];
-                return [4 /*yield*/, sensors_model_1.default.updateMany({ MCU_ID: MCU_ID }, { Enabled: Enabled })];
-            case 3:
-                modifiedCount = (_a.sent()).modifiedCount;
-                return [4 /*yield*/, (0, sensors_loader_1.loadSensorsCollection)()];
-            case 4:
-                _a.sent();
-                return [2 /*return*/, res.status(200).json({ msg: modifiedCount + " sensori aggiornati con successo!" })];
-            case 5:
-                error_4 = _a.sent();
+                error_4 = _b.sent();
                 return [2 /*return*/, res.status(500).json({ errors: [error_4] })];
             case 6: return [2 /*return*/];
         }
     });
 }); });
-sensorsRouter.put('/:MCU_ID/:Type', auth_1.requiresAuth, auth_1.userIsAdmin, (0, express_validator_1.param)('MCU_ID').exists().isLength({ min: 1 }).withMessage('ID non trovato!'), (0, express_validator_1.param)('Type').exists().isLength({ min: 1 }).withMessage("Tipo non trovato!"), (0, express_validator_1.body)('Enabled').custom(validation_1.isBoolean).withMessage("Enabled deve essere true o false!"), (0, express_validator_1.body)('Name').custom(validation_1.validIfExists).withMessage("Il nome non è valido!"), function (req, res) { return __awaiter(void 0, void 0, void 0, function () {
-    var errors, _a, MCU_ID, Type, _b, Name, Enabled, sensor, sensorWithName, error_5;
+sensorsRouter.put('/:MCU_ID/', auth_1.requiresAuth, auth_1.userIsAdmin, (0, express_validator_1.param)('MCU_ID').exists().isLength({ min: 1 }).withMessage('ID non valido!'), (0, express_validator_1.body)('Enabled').custom(validation_1.isBoolean).withMessage("Enabled deve essere true o false!"), (0, express_validator_1.body)('Group').custom(validation_1.validIfExists).withMessage("Gruppo non valido!"), function (req, res) { return __awaiter(void 0, void 0, void 0, function () {
+    var errors, MCU_ID, _a, Enabled, Group, sensor, modifiedCount, error_5;
+    return __generator(this, function (_b) {
+        switch (_b.label) {
+            case 0:
+                errors = (0, express_validator_1.validationResult)(req);
+                if (!errors.isEmpty())
+                    return [2 /*return*/, res.status(400).json({ errors: errors.array().map(function (item) { return item.msg; }) })];
+                _b.label = 1;
+            case 1:
+                _b.trys.push([1, 5, , 6]);
+                MCU_ID = req.params.MCU_ID;
+                _a = req.body, Enabled = _a.Enabled, Group = _a.Group;
+                if (Group === 'null')
+                    Group = null;
+                return [4 /*yield*/, sensors_model_1.default.findOne({ MCU_ID: MCU_ID })];
+            case 2:
+                sensor = _b.sent();
+                if (!sensor)
+                    return [2 /*return*/, res.status(404).json({ errors: ["Nessun sensore trovato con questo ID!"] })];
+                return [4 /*yield*/, sensors_model_1.default.updateMany({ MCU_ID: MCU_ID }, { Enabled: Enabled, Group: Group })];
+            case 3:
+                modifiedCount = (_b.sent()).modifiedCount;
+                return [4 /*yield*/, (0, sensors_loader_1.loadSensorsCollection)()];
+            case 4:
+                _b.sent();
+                return [2 /*return*/, res.status(200).json({ msg: modifiedCount + " sensori aggiornati con successo!" })];
+            case 5:
+                error_5 = _b.sent();
+                return [2 /*return*/, res.status(500).json({ errors: [error_5] })];
+            case 6: return [2 /*return*/];
+        }
+    });
+}); });
+sensorsRouter.put('/:MCU_ID/:Type', auth_1.requiresAuth, auth_1.userIsAdmin, (0, express_validator_1.param)('MCU_ID').exists().isLength({ min: 1 }).withMessage('ID non valido!'), (0, express_validator_1.param)('Type').exists().isLength({ min: 1 }).withMessage("Tipo non valido!"), (0, express_validator_1.body)('Enabled').custom(validation_1.isBoolean).withMessage("Enabled deve essere true o false!"), (0, express_validator_1.body)('Name').custom(validation_1.validIfExists).withMessage("Nome non valido!"), (0, express_validator_1.body)('Group').custom(validation_1.validIfExists).withMessage("Gruppo non valido!"), function (req, res) { return __awaiter(void 0, void 0, void 0, function () {
+    var errors, _a, MCU_ID, Type, _b, Name, Enabled, Group, sensor, sensorWithName, error_6;
     return __generator(this, function (_c) {
         switch (_c.label) {
             case 0:
@@ -186,7 +210,7 @@ sensorsRouter.put('/:MCU_ID/:Type', auth_1.requiresAuth, auth_1.userIsAdmin, (0,
             case 1:
                 _c.trys.push([1, 7, , 8]);
                 _a = req.params, MCU_ID = _a.MCU_ID, Type = _a.Type;
-                _b = req.body, Name = _b.Name, Enabled = _b.Enabled;
+                _b = req.body, Name = _b.Name, Enabled = _b.Enabled, Group = _b.Group;
                 return [4 /*yield*/, sensors_model_1.default.findOne({ $and: [{ MCU_ID: MCU_ID }, { Type: Type }] })];
             case 2:
                 sensor = _c.sent();
@@ -197,9 +221,12 @@ sensorsRouter.put('/:MCU_ID/:Type', auth_1.requiresAuth, auth_1.userIsAdmin, (0,
                 sensorWithName = _c.sent();
                 if (sensorWithName)
                     return [2 /*return*/, res.status(400).json({ errors: ["Esiste già un sensore con questo nome!"] })];
+                if (Group === 'null')
+                    Group = null;
                 return [4 /*yield*/, sensors_model_1.default.updateOne(sensor, {
                         Name: Name ? Name : sensor.Name,
-                        Enabled: Enabled ? Enabled : sensor.Enabled
+                        Enabled: Enabled ? Enabled : sensor.Enabled,
+                        Group: Group !== undefined ? Group : sensor.Group
                     })];
             case 4:
                 _c.sent();
@@ -209,16 +236,16 @@ sensorsRouter.put('/:MCU_ID/:Type', auth_1.requiresAuth, auth_1.userIsAdmin, (0,
                 return [4 /*yield*/, (0, sensors_loader_1.loadSensorsCollection)()];
             case 6:
                 _c.sent();
-                return [2 /*return*/, res.status(200).json({ msg: "Dati sensore aggiornati con successo!", Name: Name, Enabled: Enabled })];
+                return [2 /*return*/, res.status(200).json({ msg: "Dati sensore aggiornati con successo!", Name: Name, Enabled: Enabled, Group: Group })];
             case 7:
-                error_5 = _c.sent();
-                return [2 /*return*/, res.status(500).json({ errors: [error_5] })];
+                error_6 = _c.sent();
+                return [2 /*return*/, res.status(500).json({ errors: [error_6] })];
             case 8: return [2 /*return*/];
         }
     });
 }); });
-sensorsRouter.delete('/:MCU_ID/:Type', auth_1.requiresAuth, auth_1.userIsAdmin, (0, express_validator_1.param)('MCU_ID').exists().isLength({ min: 1 }).withMessage('ID non trovato!'), (0, express_validator_1.param)('Type').exists().isLength({ min: 1 }).withMessage('Tipo non trovato!'), function (req, res) { return __awaiter(void 0, void 0, void 0, function () {
-    var errors, _a, MCU_ID, Type, sensor, error_6;
+sensorsRouter.delete('/:MCU_ID/:Type', auth_1.requiresAuth, auth_1.userIsAdmin, (0, express_validator_1.param)('MCU_ID').exists().isLength({ min: 1 }).withMessage('ID non valido!'), (0, express_validator_1.param)('Type').exists().isLength({ min: 1 }).withMessage('Tipo non valido!'), function (req, res) { return __awaiter(void 0, void 0, void 0, function () {
+    var errors, _a, MCU_ID, Type, sensor, error_7;
     return __generator(this, function (_b) {
         switch (_b.label) {
             case 0:
@@ -242,14 +269,14 @@ sensorsRouter.delete('/:MCU_ID/:Type', auth_1.requiresAuth, auth_1.userIsAdmin, 
                 _b.sent();
                 return [2 /*return*/, res.status(200).json({ msg: "Sensore cancellato", sensor: sensor })];
             case 5:
-                error_6 = _b.sent();
-                return [2 /*return*/, res.status(500).json({ errors: [error_6] })];
+                error_7 = _b.sent();
+                return [2 /*return*/, res.status(500).json({ errors: [error_7] })];
             case 6: return [2 /*return*/];
         }
     });
 }); });
-sensorsRouter.delete('/:MCU_ID', auth_1.requiresAuth, auth_1.userIsAdmin, (0, express_validator_1.param)('MCU_ID').exists().isLength({ min: 1 }).withMessage('ID non trovato!'), function (req, res) { return __awaiter(void 0, void 0, void 0, function () {
-    var errors, MCU_ID, sensors, deletedCount, error_7;
+sensorsRouter.delete('/:MCU_ID', auth_1.requiresAuth, auth_1.userIsAdmin, (0, express_validator_1.param)('MCU_ID').exists().isLength({ min: 1 }).withMessage('ID non valido!'), function (req, res) { return __awaiter(void 0, void 0, void 0, function () {
+    var errors, MCU_ID, sensors, deletedCount, error_8;
     return __generator(this, function (_a) {
         switch (_a.label) {
             case 0:
@@ -273,8 +300,8 @@ sensorsRouter.delete('/:MCU_ID', auth_1.requiresAuth, auth_1.userIsAdmin, (0, ex
                 _a.sent();
                 return [2 /*return*/, res.status(200).json({ msg: deletedCount + " sensori cancellati!", sensors: sensors })];
             case 5:
-                error_7 = _a.sent();
-                return [2 /*return*/, res.status(500).json({ errors: [error_7] })];
+                error_8 = _a.sent();
+                return [2 /*return*/, res.status(500).json({ errors: [error_8] })];
             case 6: return [2 /*return*/];
         }
     });

@@ -19,6 +19,11 @@ const SensorsSchema = new mongoose.Schema(
             type: Boolean,
             default: true
         },
+        Group: {
+            type: String,
+            default: null,
+            required: false
+        }
     }
 )
 

@@ -8,7 +8,7 @@ var session_1 = __importDefault(require("../Connections/session"));
 var auth_1 = require("../Controllers/auth");
 var logoutRouter = express_1.default.Router();
 logoutRouter.use(session_1.default);
-logoutRouter.post('/logout', auth_1.requiresAuth, function (req, res) {
+logoutRouter.post('/', auth_1.requiresAuth, function (req, res) {
     req.session.destroy(function (err) {
         if (err)
             return res.status(500).json({ errors: ["Impossibile distruggere la sessione!"] });

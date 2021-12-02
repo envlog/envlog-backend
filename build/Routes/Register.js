@@ -48,10 +48,10 @@ var auth_1 = require("../Controllers/auth");
 var path_1 = require("../Config/path");
 var registerRouter = express_1.default.Router();
 registerRouter.use(session_1.default);
-registerRouter.get('/register', auth_1.requiresNoAuth, function (req, res) {
+registerRouter.get('/', auth_1.requiresNoAuth, function (req, res) {
     return res.status(200).sendFile('register.html', { root: path_1.staticFolder });
 });
-registerRouter.post('/register', auth_1.requiresNoAuth, (0, express_validator_1.body)('username').isLength({ min: Number(process.env.MIN_USERNAME_LEN) }).trim().escape().withMessage("Il nome utente deve contenere almeno " + process.env.MIN_USERNAME_LEN + " caratteri!"), (0, express_validator_1.body)('email').isEmail().normalizeEmail().withMessage("L'email non è valida!"), (0, express_validator_1.body)('password').isLength({ min: Number(process.env.MIN_PASS_LEN) }).trim().escape().withMessage("La password deve contenere almeno " + process.env.MIN_PASS_LEN + " caratteri!"), (0, express_validator_1.body)('passwordConfirmation').custom(auth_1.passwordsMatch), function (req, res) { return __awaiter(void 0, void 0, void 0, function () {
+registerRouter.post('/', auth_1.requiresNoAuth, (0, express_validator_1.body)('username').isLength({ min: Number(process.env.MIN_USERNAME_LEN) }).trim().escape().withMessage("Il nome utente deve contenere almeno " + process.env.MIN_USERNAME_LEN + " caratteri!"), (0, express_validator_1.body)('email').isEmail().normalizeEmail().withMessage("L'email non è valida!"), (0, express_validator_1.body)('password').isLength({ min: Number(process.env.MIN_PASS_LEN) }).trim().escape().withMessage("La password deve contenere almeno " + process.env.MIN_PASS_LEN + " caratteri!"), (0, express_validator_1.body)('passwordConfirmation').custom(auth_1.passwordsMatch), function (req, res) { return __awaiter(void 0, void 0, void 0, function () {
     var errors, _a, username, email, password, user, hashPsw, newUser, error_1;
     return __generator(this, function (_b) {
         switch (_b.label) {
