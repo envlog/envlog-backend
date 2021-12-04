@@ -105,11 +105,11 @@ var startMqttClient = function () { return __awaiter(void 0, void 0, void 0, fun
                         _a.sent();
                         sensors[Type].counter = 0;
                         sensors[Type].buffer.splice(0);
-                        console.log("[DATABASE] Saved " + process.env.ELEMENTS_PER_BUFFER + " " + Type + " elements to database!");
+                        console.log("[DATABASE] Saved ".concat(process.env.ELEMENTS_PER_BUFFER, " ").concat(Type, " elements to database!"));
                         return [3 /*break*/, 4];
                     case 3:
                         err_1 = _a.sent();
-                        console.log("[DATABASE] Error trying to save " + process.env.ELEMENTS_PER_BUFFER + " " + Type + " elements to database: " + err_1 + ".");
+                        console.log("[DATABASE] Error trying to save ".concat(process.env.ELEMENTS_PER_BUFFER, " ").concat(Type, " elements to database: ").concat(err_1, "."));
                         return [3 /*break*/, 4];
                     case 4:
                         ;
