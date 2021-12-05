@@ -30,4 +30,4 @@ app.use('/auth/register', Register_1.default);
 app.use('/auth/logout', Logout_1.default);
 app.use('/sensors', Sensors_1.default);
 app.use(express_1.default.static(path_1.staticFolder));
-app.listen(process.env.SERVER_PORT, function () { return console.log("[SERVER] Server online on port ".concat(process.env.SERVER_PORT, ".")); });
+app.listen(process.env.SERVER_PORT, function () { return console.log("[SERVER] Server online on port " + process.env.SERVER_PORT + "."); });

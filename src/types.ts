@@ -1,5 +1,3 @@
-import { ValidationError } from 'express-validator';
-
 export interface DataObject {
     DevAddr: string,
     Type: string,
@@ -68,9 +66,13 @@ export interface SensorSchema {
     Received: string
 }
 
-export type MQTTPayload = Omit<SensorSchema, 'Received'> & { DevAddr: string }
+export type MQTTPayload = Omit<SensorSchema, 'Received' | 'Data'> & 
+                        { DevAddr: string, Unit: string | undefined } & 
+                        { [key: string]: string };
 
-export type SensorInterface = Omit<Required<SensorSchema>, 'Data' | 'Received'> & { Name: string, Enabled: boolean }
+export type SensorInterface = Omit<Required<SensorSchema>, 'Data' | 'Received'> & { Name: string, Enabled: boolean, Group: string | null };
+
+export type SocketObject = Omit<SensorSchema, 'Received' | 'Data'> & { Value?: string, Unit?: string };
 
 export type Optional<T, K extends keyof T> = Pick<Required<T>, K> & Partial<T>;
 

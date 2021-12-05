@@ -141,7 +141,7 @@ sensorsRouter.post('/', auth_1.requiresAuth, auth_1.userIsAdmin, (0, express_val
                 _b.trys.push([1, 5, , 6]);
                 _a = req.body, MCU_ID = _a.MCU_ID, Name = _a.Name, Type = _a.Type, Enabled = _a.Enabled, Group = _a.Group;
                 if (!Name)
-                    Name = "".concat(Type, "_").concat((0, nanoid_1.nanoid)(7));
+                    Name = Type + "_" + (0, nanoid_1.nanoid)(7);
                 if (!Group)
                     Group = null;
                 return [4 /*yield*/, sensors_model_1.default.findOne({ $or: [{ Name: Name }, { $and: [{ MCU_ID: MCU_ID }, { Type: Type }] }] })];
@@ -190,7 +190,7 @@ sensorsRouter.put('/:MCU_ID/', auth_1.requiresAuth, auth_1.userIsAdmin, (0, expr
                 return [4 /*yield*/, (0, sensors_loader_1.loadSensorsCollection)()];
             case 4:
                 _b.sent();
-                return [2 /*return*/, res.status(200).json({ msg: "".concat(modifiedCount, " sensori aggiornati con successo!") })];
+                return [2 /*return*/, res.status(200).json({ msg: modifiedCount + " sensori aggiornati con successo!" })];
             case 5:
                 error_5 = _b.sent();
                 return [2 /*return*/, res.status(500).json({ errors: [error_5] })];
@@ -298,7 +298,7 @@ sensorsRouter.delete('/:MCU_ID', auth_1.requiresAuth, auth_1.userIsAdmin, (0, ex
                 return [4 /*yield*/, (0, sensors_loader_1.loadSensorsCollection)()];
             case 4:
                 _a.sent();
-                return [2 /*return*/, res.status(200).json({ msg: "".concat(deletedCount, " sensori cancellati!"), sensors: sensors })];
+                return [2 /*return*/, res.status(200).json({ msg: deletedCount + " sensori cancellati!", sensors: sensors })];
             case 5:
                 error_8 = _a.sent();
                 return [2 /*return*/, res.status(500).json({ errors: [error_8] })];

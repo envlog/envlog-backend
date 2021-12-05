@@ -46,11 +46,11 @@ mqttClient.on('connect', function () { return __awaiter(void 0, void 0, void 0, 
     return __generator(this, function (_a) {
         switch (_a.label) {
             case 0:
-                console.log("[MQTT] Connected to ".concat(process.env.MQTT_BROKER, "."));
+                console.log("[MQTT] Connected to " + process.env.MQTT_BROKER + ".");
                 return [4 /*yield*/, mqttClient.subscribe(topics)];
             case 1:
                 _a.sent();
-                console.log("[MQTT] Subscribed to [".concat(topics.join(', '), "]."));
+                console.log("[MQTT] Subscribed to [" + topics.join(', ') + "].");
                 return [2 /*return*/];
         }
     });

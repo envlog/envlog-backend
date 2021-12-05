@@ -6,6 +6,6 @@ var io = new socket_io_1.Server(Number(process.env.SOCKET_PORT), {
     pingTimeout: Number(process.env.PING_TIMEOUT)
 });
 io.on('connection', function (socket) {
-    console.log("[SOCKET.IO] ".concat(socket.id, " connected!"));
+    console.log("[SOCKET.IO] " + socket.id + " connected!");
 });
 exports.default = io;
