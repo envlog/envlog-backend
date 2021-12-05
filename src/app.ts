@@ -17,8 +17,7 @@ import cors from 'cors';
 
 const app = express();
 
-app.use(cors({ credentials: true, origin: true }));
-app.options('*', (_, res) => res.status(200));
+app.use(cors({ credentials: true, origin: '*' }));
 app.use(express.json());
 app.use(express.urlencoded({ extended: true }));
 app.use('/', indexRouter); 
