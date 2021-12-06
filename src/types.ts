@@ -52,7 +52,7 @@ export interface FreqData extends DataObject {
 
 export interface SensorDataBuffer {
     counter: number,
-    buffer: object[]
+    buffer: { MCU_ID: string, Type: string, Received: string, Data?: string }[]
 };
 
 export interface Sensors {

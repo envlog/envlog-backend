@@ -6,6 +6,9 @@ import Sensor from '../Models/sensors.model';
 import { loadSensorsCollection } from '../Utils/sensors_loader';
 import { nanoid } from 'nanoid';
 import { isBoolean, validIfExists, validNumberIfExists } from '../Controllers/validation';
+import { getLastInBuffer } from '../Utils/save_to_buffer';
+import SensorData from '../Models/sensor_data.model';
+import { BatteryData, SensorSchema } from '../types';
 
 const sensorsRouter = express.Router();
 sensorsRouter.use(session);
@@ -58,7 +61,33 @@ sensorsRouter.get(
         try {
             const { MCU_ID, Type } = req.params;
             const sensor = await Sensor.findOne({ $and: [{ MCU_ID }, { Type }] });
-            if (sensor) return res.status(200).json(sensor);
+            if (sensor) {
+                var batteryObject: BatteryData | undefined;
+
+                var lastBatteryData: SensorSchema | undefined = getLastInBuffer(MCU_ID, "Battery");
+                if (!lastBatteryData)
+                    lastBatteryData = await SensorData.findOne({ $and: [{ MCU_ID }, { Type: "Battery" }] }).limit(1).sort({ Received: -1 });
+                if (lastBatteryData?.Data)
+                    batteryObject = await JSON.parse(lastBatteryData.Data);
+
+                const velocityData = await Promise.all(
+                    ["RMSSpeedStatus", "AccPeakStatus", "FreqData", "TimeDomainDataInfo"].map(async item => {
+                    let lastData: SensorSchema | undefined = getLastInBuffer(MCU_ID, item);
+                    if (!lastData)
+                        lastData = await SensorData.findOne({ $and: [{ MCU_ID }, { Type: item }] }).limit(1).sort({ Received: -1 });
+                    if (lastData?.Data)
+                        return await JSON.parse(lastData.Data);
+
+                    return undefined;
+                }));
+                
+                return res.status(200).json(
+                    { 
+                        sensor, BatteryLevel: batteryObject?.Level, BatteryVoltage: batteryObject?.Voltage, BatteryUnit: batteryObject?.Unit,
+                        RMSSpeedStatus: velocityData[0], AccPeakStatus: velocityData[1], FreqData: velocityData[2], TimeDomainDataInfo: velocityData[3]
+                    }
+                );
+            }
             return res.status(404).json({ errors: ["Sensore non trovato!"] });
         } catch (error: any) {
             return res.status(500).json({ errors: [error] });

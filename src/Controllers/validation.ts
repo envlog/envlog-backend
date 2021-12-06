@@ -15,7 +15,6 @@ export const validIfExists = (param: string | undefined) => {
 }
 
 export const validNumberIfExists = (param: string | undefined) => {
-    console.log(param);
     if (param !== undefined && isNaN(parseInt(param)))
         throw "Il valore non è valido!";
     

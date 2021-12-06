@@ -14,6 +14,7 @@ import indexRouter from './Routes/Index';
 import sensorsRouter from './Routes/Sensors';
 import { staticFolder } from './Config/path';
 import cors from 'cors';
+import sensorsDataRouter from './Routes/SensorsDataHistory';
 
 const app = express();
 
@@ -25,6 +26,7 @@ app.use('/auth/login', loginRouter);
 app.use('/auth/register', registerRouter);
 app.use('/auth/logout', logoutRouter);
 app.use('/sensors', sensorsRouter);
+app.use('/sensorsdatahistory', sensorsDataRouter);
 app.use(express.static(staticFolder));
 
 app.listen(process.env.SERVER_PORT, () => console.log(`[SERVER] Server online on port ${process.env.SERVER_PORT}.`));
