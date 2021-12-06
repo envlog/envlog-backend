@@ -5,7 +5,7 @@ import { requiresAuth, userIsAdmin } from '../Controllers/auth';
 import Sensor from '../Models/sensors.model';
 import { loadSensorsCollection } from '../Utils/sensors_loader';
 import { nanoid } from 'nanoid';
-import { isBoolean, validIfExists } from '../Controllers/validation';
+import { isBoolean, validIfExists, validNumberIfExists } from '../Controllers/validation';
 
 const sensorsRouter = express.Router();
 sensorsRouter.use(session);
@@ -17,14 +17,14 @@ sensorsRouter.get(
     query('Type').custom(validIfExists).withMessage("Tipo non valido!"),
     query('Name').custom(validIfExists).withMessage("Nome non valido!"),
     query('MCU_ID').custom(validIfExists).withMessage("MCU_ID non valido!"),
-    query('Group').custom(validIfExists).withMessage("Gruppo non valido!"),
-    async (req: Request<{}, {}, {}, { Type: string | undefined, Name: string | undefined, MCU_ID: string | undefined, Enabled: string | undefined, Group: string | undefined }>, res: Response) => {
+    query('Limit').custom(validNumberIfExists).withMessage('Limite non valido!'),
+    async (req: Request<{}, {}, {}, { Type: string | undefined, Name: string | undefined, MCU_ID: string | undefined, Enabled: string | undefined, Group: string | undefined, Limit: string | undefined }>, res: Response) => {
         const errors = validationResult(req);
         if (!errors.isEmpty()) return res.status(400).json({ errors: errors.array().map(item => item.msg) });
         try {
-            var { ...filters } = req.query;
+            var { Limit, ...filters } = req.query;
             if (filters.Group === 'null') filters.Group = null!;
-            const sensors = await Sensor.find({ $and: [filters] });
+            const sensors = await Sensor.find({ $and: [filters] }).limit(Number(Limit));
             return res.status(200).json(sensors);
         } catch (error: any) {
             return res.status(500).json({ errors: [error] });
