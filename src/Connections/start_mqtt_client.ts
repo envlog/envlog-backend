@@ -15,6 +15,8 @@ export const startMqttClient = async () => {
     */
     mqttClient.on('message', async (_: string, payload: Buffer) => { 
         const mqttObject: MQTTPayload = JSON.parse(payload.toString());
+	
+	if (!mqttObject.MCU_ID || !mqttObject.Type || !mqttObject.Unit) return;
 
         if (socketBroadcastExclusions.includes(mqttObject.Type)) {
             await saveToBuffer(mqttObject);

@@ -1,5 +1,5 @@
 import MQTT from 'async-mqtt';
-const topics = ['Temperature/+', 'RMSSpeedStatus/+', 'AccPeakStatus/+', 'FreqData/+', 'Battery/+', 'TimeDomainDataInfo/+'];
+const topics = ['Temperature/+', 'RMSSpeedStatus/+', 'AccPeakStatus/+', 'FreqData/+', 'Battery/+', 'TimeDomainDataInfo/+', 'Pressure/+'];
 
 const mqttClient = MQTT.connect(process.env.MQTT_BROKER);
 

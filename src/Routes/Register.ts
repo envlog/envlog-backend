@@ -23,7 +23,7 @@ registerRouter.post(
     body('username').isLength({ min: Number(process.env.MIN_USERNAME_LEN) }).trim().escape().withMessage(`Il nome utente deve contenere almeno ${process.env.MIN_USERNAME_LEN} caratteri!`),
     body('email').isEmail().normalizeEmail().withMessage("L'email non è valida!"),
     body('password').isLength({ min: Number(process.env.MIN_PASS_LEN) }).trim().escape().withMessage(`La password deve contenere almeno ${process.env.MIN_PASS_LEN} caratteri!`),
-    body('passwordConfirmation').custom(passwordsMatch),
+    body('passwordConfirmation').custom(passwordsMatch).withMessage("Le password non corrispondono!"),
     async (req: Request<{}, {}, { username: string, email: string, password: string }>, res: Response) => {
 
         const errors = validationResult(req);
