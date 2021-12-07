@@ -4,7 +4,6 @@ import { MQTTPayload } from '../types';
 import { saveToBuffer } from '../Utils/save_to_buffer';
 import { SocketObject } from '../types';
 import { sensorsCollection } from '../Utils/sensors_loader';
-import { isVibrationSensor } from '../Utils/misc';
 
 const socketBroadcastExclusions = ['Battery', 'TimeDomainDataInfo', 'RMSSpeedStatus', 'FreqData', 'AccPeakStatus'];
 
@@ -16,7 +15,7 @@ export const startMqttClient = async () => {
     mqttClient.on('message', async (_: string, payload: Buffer) => { 
         const mqttObject: MQTTPayload = JSON.parse(payload.toString());
 	
-	if (!mqttObject.MCU_ID || !mqttObject.Type || !mqttObject.Unit) return;
+	    if (!mqttObject.MCU_ID || !mqttObject.Type) return;
 
         if (socketBroadcastExclusions.includes(mqttObject.Type)) {
             await saveToBuffer(mqttObject);
@@ -30,17 +29,15 @@ export const startMqttClient = async () => {
 
         await saveToBuffer(mqttObject);
 
-        const { Type } = mqttObject;
-
         const socketObject: SocketObject = {
             MCU_ID: mqttObject.MCU_ID,
             Type: mqttObject.Type,
             Unit: mqttObject.Unit
         }
 
-        if (Type === 'Battery') socketObject.Value = mqttObject.Level;
-        else if (Type === 'Temperature') socketObject.Value = mqttObject.Value;
-        else if (isVibrationSensor(Type)) socketObject.Value = mqttObject.Data;
+        if (mqttObject.Level) socketObject.Value = mqttObject.Level;
+        else if (mqttObject.Value) socketObject.Value = mqttObject.Value;
+        else if (mqttObject.Data) socketObject.Value = mqttObject.Data;
         else return;
         
         
