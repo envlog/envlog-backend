@@ -1,11 +1,11 @@
 import mqttClient from './mqtt_client';
 import io from './socket';
-import { MQTTPayload } from '../types';
+import { MQTTPayload, SensorInterface } from '../types';
 import { saveToBuffer } from '../Utils/save_to_buffer';
 import { SocketObject } from '../types';
 import { sensorsCollection } from '../Utils/sensors_loader';
 
-const socketBroadcastExclusions = ['Battery', 'TimeDomainDataInfo', 'RMSSpeedStatus', 'FreqData', 'AccPeakStatus'];
+const socketBroadcastExclusions = ['TimeDomainDataInfo', 'RMSSpeedStatus', 'FreqData', 'AccPeakStatus'];
 
 export const startMqttClient = async () => {
     /*
@@ -23,7 +23,13 @@ export const startMqttClient = async () => {
         }
 
         if (sensorsCollection) {
-            const sensor = sensorsCollection.find(({ MCU_ID, Type }) => MCU_ID === mqttObject.MCU_ID && Type === mqttObject.Type); 
+            let sensor: SensorInterface | undefined;
+
+            if (mqttObject.Type === "Battery") // Se è un dato di tipo batteria, controllo che almeno un sensore con quell'ID sia attivo
+                sensor = sensorsCollection.find(({ MCU_ID, Enabled }) => MCU_ID === mqttObject.MCU_ID && Enabled); 
+             else 
+                sensor = sensorsCollection.find(({ MCU_ID, Type }) => MCU_ID === mqttObject.MCU_ID && Type === mqttObject.Type); 
+            
             if (!sensor || (sensor && !sensor.Enabled)) return; // Controllo che il sensore sia attivo o che sia presente nella lista
         }
 
@@ -34,6 +40,8 @@ export const startMqttClient = async () => {
             Type: mqttObject.Type,
             Unit: mqttObject.Unit
         }
+
+        if (mqttObject.Type === "Battery") socketObject.Voltage = mqttObject.Voltage as unknown as number; // Che schifo
 
         if (mqttObject.Level) socketObject.Value = mqttObject.Level;
         else if (mqttObject.Value) socketObject.Value = mqttObject.Value;

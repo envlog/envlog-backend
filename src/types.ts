@@ -72,7 +72,7 @@ export type MQTTPayload = Omit<SensorSchema, 'Received' | 'Data'> &
 
 export type SensorInterface = Omit<Required<SensorSchema>, 'Data' | 'Received'> & { Name: string, Enabled: boolean, Group: string | null };
 
-export type SocketObject = Omit<SensorSchema, 'Received' | 'Data'> & { Value?: string, Unit?: string };
+export type SocketObject = Omit<SensorSchema, 'Received' | 'Data'> & { Value?: string, Unit?: string, Voltage?: number };
 
 export type Optional<T, K extends keyof T> = Pick<Required<T>, K> & Partial<T>;
 
