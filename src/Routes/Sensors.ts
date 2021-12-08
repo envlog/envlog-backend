@@ -36,6 +36,19 @@ sensorsRouter.get(
 );
 
 sensorsRouter.get(
+    '/groups',
+    requiresAuth,
+    async (req: Request, res: Response) => {
+        try {
+            const groups = await Sensor.distinct("Group");
+            return res.status(200).json(groups.filter(item => item));
+        } catch (error: any) {
+            return res.status(500).json({ errors: [error] });
+        }
+    }
+)
+
+sensorsRouter.get(
     '/groups/:Group',
     requiresAuth,
     param('Group').exists().isLength({ min: 1 }).withMessage('Gruppo non valido!'),
@@ -108,6 +121,7 @@ sensorsRouter.post(
         if (!errors.isEmpty()) return res.status(400).json({ errors: errors.array().map(item => item.msg) });
         try {
             var { MCU_ID, Name, Type, Enabled, Group } = req.body;
+            if (!MCU_ID.startsWith("0x")) MCU_ID = `0x${MCU_ID}`;
             if (!Name) Name = `${Type}_${nanoid(7)}`;
             if (!Group) Group = null;
             const sensor = await Sensor.findOne({ $or: [{ Name }, { $and: [{ MCU_ID }, { Type }] }] });
