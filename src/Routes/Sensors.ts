@@ -27,7 +27,7 @@ sensorsRouter.get(
         try {
             var { Limit, ...filters } = req.query;
             if (filters.Group === 'null') filters.Group = null!;
-            const sensors = await Sensor.find({ $and: [filters] }).limit(Number(Limit));
+            const sensors = await Sensor.find({ $and: [filters] }).limit(Number(Limit)).sort({ Enabled: -1 });
             return res.status(200).json(sensors);
         } catch (error: any) {
             return res.status(500).json({ errors: [error] });
@@ -55,7 +55,7 @@ sensorsRouter.get(
     async (req: Request<{ Group: string }>, res: Response) => {
         try {
             var { Group } = req.params;
-            const sensors = await Sensor.find({ Group });
+            const sensors = await Sensor.find({ Group }).sort({ Enabled: -1 });
             return res.status(200).json(sensors);
         } catch (error: any) {
             return res.status(500).json({ errors: [error] });
