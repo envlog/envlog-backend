@@ -14,8 +14,9 @@ export const startMqttClient = async () => {
     */
     mqttClient.on('message', async (_: string, payload: Buffer) => { 
         const mqttObject: MQTTPayload = JSON.parse(payload.toString());
+        mqttObject.MCU_ID = mqttObject.MCU_ID ? mqttObject.MCU_ID : mqttObject.DevAddr;
 	
-	    if (!mqttObject.MCU_ID || !mqttObject.Type) return;
+	    if (!mqttObject.Type) return;
 
         if (socketBroadcastExclusions.includes(mqttObject.Type)) {
             await saveToBuffer(mqttObject);
@@ -47,7 +48,6 @@ export const startMqttClient = async () => {
         else if (mqttObject.Value) socketObject.Value = mqttObject.Value;
         else if (mqttObject.Data) socketObject.Value = mqttObject.Data;
         else return;
-        
         
         io.emit('data', JSON.stringify(socketObject));
     }); 
