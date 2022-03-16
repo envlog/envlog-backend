@@ -1,5 +1,5 @@
-# banane-backend
-Backend side of Bananahahaha project
+# bbackend
+Backend side of envlog project
 
 ## Components
 - STM32MP1
