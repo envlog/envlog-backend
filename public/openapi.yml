@@ -1,0 +1,86 @@
+openapi: 3.0.0
+info:
+  title: 'Envlog Project CRUD'
+  description: 'Envlog Project Application API'
+  version: 1.0.0
+
+servers:
+  - url: 'http://localhost:3001/'
+    description: 'Local development'
+
+paths:
+  /auth/register:
+    post:
+      tags:
+        - Auth
+      summary: 'Create a user account'
+      requestBody:
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/RegisterPayload'
+      responses:
+        '201':
+        description: 'Account created'
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/RegisterPayload'
+        '400':
+          description: 'Bad request'
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Message'
+        '500':
+          description: 'Internal server error'
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Message'
+
+
+
+
+
+
+
+
+
+
+
+
+components:
+  schemas:
+    Message:
+      type: object
+      properties:
+        message:
+          type: string
+      required:
+        - message
+    RegisterPayload:
+      description: 'Register information'
+      type: object
+      properties:
+        username:
+          type: string
+        email:
+          type: string
+        password:
+          type: string
+        passwordConfirmation:
+          type: string 
+      required:
+        - username
+        - email
+        - password
+        - passwordConfirmation
+    RegisterResponse:
+      description: 'Register response'
+      type: object
+      properties:
+        username:
+          type: string
+        email:
+          type: string
