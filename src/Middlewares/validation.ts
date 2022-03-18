@@ -1,7 +1,7 @@
 import { CustomValidator } from 'express-validator';
 
 export const isBoolean: CustomValidator = (param: string | undefined) => {
-	if (param !== undefined && param != 'true' && param != 'false')
+	if (param !== undefined && param.toLowerCase() !== 'true' && param.toLowerCase() !== 'false')
 		throw 'Il valore deve essere true o false!';
 
 	return true;
