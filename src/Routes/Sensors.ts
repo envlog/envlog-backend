@@ -49,7 +49,7 @@ sensorsRouter.get(
 				.status(400)
 				.json({ errors: errors.array().map(item => item.msg) });
 		try {
-			var { Limit, ...filters } = req.query;
+			let { Limit, ...filters } = req.query;
 			if (filters.Group === 'null') filters.Group = null!;
 			const sensors = await Sensor.find({ $and: [filters] })
 				.limit(Number(Limit))
@@ -79,11 +79,12 @@ sensorsRouter.get(
 	requiresAuth,
 	param('Group')
 		.exists()
+		.withMessage('Fornire un gruppo!')
 		.isLength({ min: 1 })
 		.withMessage('Gruppo non valido!'),
 	async (req: Request<{ Group: string }>, res: Response) => {
 		try {
-			var { Group } = req.params;
+			let { Group } = req.params;
 			const sensors = await Sensor.find({ Group }).sort({ Enabled: -1 });
 			return res.status(200).json(sensors);
 		} catch (error: any) {
@@ -95,8 +96,8 @@ sensorsRouter.get(
 sensorsRouter.get(
 	'/:MCU_ID/:Type',
 	requiresAuth,
-	param('MCU_ID').exists().isLength({ min: 1 }).withMessage('ID non valido!'),
-	param('Type').exists().isLength({ min: 1 }).withMessage('Tipo non valido!'),
+	param('MCU_ID').exists().withMessage('Fornire un ID!').isLength({ min: 1 }).withMessage('ID non valido!'),
+	param('Type').exists().withMessage('Fornire un tipo!').isLength({ min: 1 }).withMessage('Tipo non valido!'),
 	async (req: Request<{ MCU_ID: string; Type: string }>, res: Response) => {
 		const errors = validationResult(req);
 		if (!errors.isEmpty())
@@ -107,9 +108,9 @@ sensorsRouter.get(
 			const { MCU_ID, Type } = req.params;
 			const sensor = await Sensor.findOne({ $and: [{ MCU_ID }, { Type }] });
 			if (sensor) {
-				var batteryObject: BatteryData | undefined;
+				let batteryObject: BatteryData | undefined;
 
-				var lastBatteryData: SensorSchema | undefined = getLastInBuffer(
+				let lastBatteryData: SensorSchema | undefined = getLastInBuffer(
 					MCU_ID,
 					'Battery'
 				);
@@ -167,8 +168,8 @@ sensorsRouter.post(
 	'/',
 	requiresAuth,
 	userIsAdmin,
-	body('MCU_ID').exists().isLength({ min: 1 }).withMessage('ID non valido!'),
-	body('Type').exists().isLength({ min: 1 }).withMessage('Tipo non valido!'),
+	body('MCU_ID').exists().withMessage('Fornire un ID!').isLength({ min: 1 }).withMessage('ID non valido!'),
+	body('Type').exists().withMessage('Fornire un tipo!').isLength({ min: 1 }).withMessage('Tipo non valido!'),
 	body('Enabled')
 		.custom(isBoolean)
 		.withMessage('Enabled deve essere true o false!'),
@@ -193,7 +194,7 @@ sensorsRouter.post(
 				.status(400)
 				.json({ errors: errors.array().map(item => item.msg) });
 		try {
-			var { MCU_ID, Name, Type, Enabled, Group } = req.body;
+			let { MCU_ID, Name, Type, Enabled, Group } = req.body;
 			if (!MCU_ID.startsWith('0x')) MCU_ID = `0x${MCU_ID}`;
 			if (!Name) Name = `${Type}_${nanoid(7)}`;
 			if (!Group) Group = null;
@@ -229,7 +230,7 @@ sensorsRouter.put(
 	'/:MCU_ID/',
 	requiresAuth,
 	userIsAdmin,
-	param('MCU_ID').exists().isLength({ min: 1 }).withMessage('ID non valido!'),
+	param('MCU_ID').exists().withMessage('Fornire un ID!').isLength({ min: 1 }).withMessage('ID non valido!'),
 	body('Enabled')
 		.custom(isBoolean)
 		.withMessage('Enabled deve essere true o false!'),
@@ -249,7 +250,7 @@ sensorsRouter.put(
 				.json({ errors: errors.array().map(item => item.msg) });
 		try {
 			const { MCU_ID } = req.params;
-			var { Enabled, Group } = req.body;
+			let { Enabled, Group } = req.body;
 			if (Group === 'null') Group = null;
 			const sensor = await Sensor.findOne({ MCU_ID });
 			if (!sensor)
@@ -274,8 +275,8 @@ sensorsRouter.put(
 	'/:MCU_ID/:Type',
 	requiresAuth,
 	userIsAdmin,
-	param('MCU_ID').exists().isLength({ min: 1 }).withMessage('ID non valido!'),
-	param('Type').exists().isLength({ min: 1 }).withMessage('Tipo non valido!'),
+	param('MCU_ID').exists().withMessage('Fornire un ID!').isLength({ min: 1 }).withMessage('ID non valido!'),
+	param('Type').exists().withMessage('Fornire un tipo!').isLength({ min: 1 }).withMessage('Tipo non valido!'),
 	body('Enabled')
 		.custom(isBoolean)
 		.withMessage('Enabled deve essere true o false!'),
@@ -300,7 +301,7 @@ sensorsRouter.put(
 				.json({ errors: errors.array().map(item => item.msg) });
 		try {
 			const { MCU_ID, Type } = req.params;
-			var { Name, Enabled, Group } = req.body;
+			let { Name, Enabled, Group } = req.body;
 			const sensor = await Sensor.findOne({ $and: [{ MCU_ID }, { Type }] });
 			if (!sensor)
 				return res.status(404).json({ errors: ['Sensore non trovato!'] });
@@ -333,8 +334,8 @@ sensorsRouter.delete(
 	'/:MCU_ID/:Type',
 	requiresAuth,
 	userIsAdmin,
-	param('MCU_ID').exists().isLength({ min: 1 }).withMessage('ID non valido!'),
-	param('Type').exists().isLength({ min: 1 }).withMessage('Tipo non valido!'),
+	param('MCU_ID').exists().withMessage('Fornire un ID!').isLength({ min: 1 }).withMessage('ID non valido!'),
+	param('Type').exists().withMessage('Fornire un tipo!').isLength({ min: 1 }).withMessage('Tipo non valido!'),
 	async (req: Request<{ MCU_ID: string; Type: string }>, res: Response) => {
 		const errors = validationResult(req);
 		if (!errors.isEmpty())
@@ -359,7 +360,7 @@ sensorsRouter.delete(
 	'/:MCU_ID',
 	requiresAuth,
 	userIsAdmin,
-	param('MCU_ID').exists().isLength({ min: 1 }).withMessage('ID non valido!'),
+	param('MCU_ID').exists().withMessage('Fornire un ID!').isLength({ min: 1 }).withMessage('ID non valido!'),
 	async (req: Request<{ MCU_ID: string }>, res: Response) => {
 		const errors = validationResult(req);
 		if (!errors.isEmpty())

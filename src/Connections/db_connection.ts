@@ -2,7 +2,7 @@ import mongoose from 'mongoose';
 
 const dbInit = () => {
 	mongoose.connect(
-		`mongodb://${process.env.DB_HOST}:${process.env.DB_PORT}/${process.env.DB_NAME}`,
+		process.env.ATLAS_URL || `mongodb://${process.env.DB_HOST}:${process.env.DB_PORT}/${process.env.DB_NAME}`,
 		error => {
 			if (error) console.log(error);
 		}
@@ -10,7 +10,7 @@ const dbInit = () => {
 	const db = mongoose.connection;
 	db.once('open', () =>
 		console.log(
-			`[DATABASE] Connected to mongodb://${process.env.DB_HOST}:${process.env.DB_PORT}/${process.env.DB_NAME}.`
+			`[DATABASE] Connected to ${process.env.ATLAS_URL || `mongodb://${process.env.DB_HOST}:${process.env.DB_PORT}/${process.env.DB_NAME}`}.`
 		)
 	);
 };

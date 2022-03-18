@@ -4,14 +4,9 @@ import { body, validationResult } from 'express-validator';
 import bcrypt from 'bcrypt';
 import session from '../Connections/session';
 import { passwordsMatch, requiresNoAuth } from '../Middlewares/auth';
-import { staticFolder } from '../Config/path';
 
 const registerRouter = express.Router();
 registerRouter.use(session);
-
-registerRouter.get('/', requiresNoAuth, (req, res) => {
-	return res.status(200).sendFile('register.html', { root: staticFolder });
-});
 
 registerRouter.post(
 	'/',

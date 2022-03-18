@@ -14,7 +14,7 @@ logoutRouter.post('/', requiresAuth, (req: Request, res: Response) => {
 				.json({ errors: ['Impossibile distruggere la sessione!'] });
 	});
 
-	return res.status(200).redirect('/auth/login');
+	return res.status(200).json({ message: 'Disconnesso.' });
 });
 
 export default logoutRouter;
