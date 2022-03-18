@@ -1,3 +1,3 @@
-import path from "path";
+import path from 'path';
 
 export const staticFolder = path.join(__dirname, '/../../public');

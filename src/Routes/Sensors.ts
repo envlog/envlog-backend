@@ -201,14 +201,12 @@ sensorsRouter.post(
 				$or: [{ Name }, { $and: [{ MCU_ID }, { Type }] }],
 			});
 			if (sensor)
-				return res
-					.status(409)
-					.json({
-						errors: [
-							'Esiste già un sensore con questo nome o con la combinazione ID/Tipo!',
-						],
-						sensor,
-					});
+				return res.status(409).json({
+					errors: [
+						'Esiste già un sensore con questo nome o con la combinazione ID/Tipo!',
+					],
+					sensor,
+				});
 			const newSensor = new Sensor({
 				MCU_ID,
 				Name,
@@ -319,14 +317,12 @@ sensorsRouter.put(
 			});
 			await sensor.save();
 			await loadSensorsCollection();
-			return res
-				.status(200)
-				.json({
-					msg: 'Dati sensore aggiornati con successo!',
-					Name,
-					Enabled,
-					Group,
-				});
+			return res.status(200).json({
+				msg: 'Dati sensore aggiornati con successo!',
+				Name,
+				Enabled,
+				Group,
+			});
 		} catch (error: any) {
 			return res.status(500).json({ errors: [error] });
 		}
