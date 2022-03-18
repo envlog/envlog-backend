@@ -1,3 +1,8 @@
 export const isVibrationSensor = (type: string) => {
-    return type === "TimeDomainDataInfo" || type === "RMSSpeedStatus" || type === "AccPeakStatus" || type === "FreqData";
-}
+	return (
+		type === 'TimeDomainDataInfo' ||
+		type === 'RMSSpeedStatus' ||
+		type === 'AccPeakStatus' ||
+		type === 'FreqData'
+	);
+};
