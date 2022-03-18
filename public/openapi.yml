@@ -7,13 +7,15 @@ info:
 servers:
   - url: 'http://localhost:3001/'
     description: 'Local development'
+  #- url: 'https://ymlwbdaex2.execute-api.eu-central-1.amazonaws.com/dev/' indirizzo di stage dopo deploy ? boooo
+  #  description: 'Stage'
 
 paths:
   /auth/register:
     post:
       tags:
         - Auth
-      summary: 'Create a user account'
+      summary: 'Register'
       requestBody:
         content:
           application/json:
@@ -21,11 +23,64 @@ paths:
               $ref: '#/components/schemas/RegisterPayload'
       responses:
         '201':
-        description: 'Account created'
+          description: 'Account created'
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/RegisterResponse'
+        '400':
+          description: 'Bad request'
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Message'
+        '500':
+          description: 'Internal server error'
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Message'
+  /auth/login:
+    post:
+      tags:
+        - Auth
+      summary: 'Login'
+      requestBody:
         content:
           application/json:
             schema:
-              $ref: '#/components/schemas/RegisterPayload'
+              $ref: '#/components/schemas/LoginPayload'
+      responses:
+        '201':
+          description: 'Login succesfull'
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/LoginResponse'
+        '400':
+          description: 'Bad request'
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Message'
+        '500':
+          description: 'Internal server error'
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Message'
+  /auth/logout:
+    post:
+      tags:
+        - Auth
+      summary: 'Logout'
+      responses:
+        '200':
+          description: 'Logout succesfull'
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Message'
         '400':
           description: 'Bad request'
           content:
@@ -43,13 +98,6 @@ paths:
 
 
 
-
-
-
-
-
-
-
 components:
   schemas:
     Message:
@@ -60,13 +108,13 @@ components:
       required:
         - message
     RegisterPayload:
-      description: 'Register information'
       type: object
       properties:
         username:
           type: string
         email:
           type: string
+          format: email
         password:
           type: string
         passwordConfirmation:
@@ -84,3 +132,24 @@ components:
           type: string
         email:
           type: string
+    LoginPayload:
+      type: object
+      properties:
+        email:
+          type: string
+          format: email
+        password:
+          type: string
+      required:
+        - email
+        - password
+    LoginResponse:
+      type: object
+      properties:
+        username:
+          type: string
+        email:
+          type: string
+          format: email
+        isAdmin:
+          type: boolean
