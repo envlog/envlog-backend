@@ -33,13 +33,13 @@ paths:
           content:
             application/json:
               schema:
-                $ref: '#/components/schemas/Message'
+                $ref: '#/components/schemas/Errors'
         '500':
           description: 'Internal server error'
           content:
             application/json:
               schema:
-                $ref: '#/components/schemas/Message'
+                $ref: '#/components/schemas/Errors'
   /auth/login:
     post:
       tags:
@@ -51,8 +51,8 @@ paths:
             schema:
               $ref: '#/components/schemas/LoginPayload'
       responses:
-        '201':
-          description: 'Login succesfull'
+        '200':
+          description: 'Login succesful'
           content:
             application/json:
               schema:
@@ -62,13 +62,13 @@ paths:
           content:
             application/json:
               schema:
-                $ref: '#/components/schemas/Message'
+                $ref: '#/components/schemas/Errors'
         '500':
           description: 'Internal server error'
           content:
             application/json:
               schema:
-                $ref: '#/components/schemas/Message'
+                $ref: '#/components/schemas/Errors'
   /auth/logout:
     post:
       tags:
@@ -76,7 +76,7 @@ paths:
       summary: 'Logout'
       responses:
         '200':
-          description: 'Logout succesfull'
+          description: 'Logout succesful'
           content:
             application/json:
               schema:
@@ -86,13 +86,13 @@ paths:
           content:
             application/json:
               schema:
-                $ref: '#/components/schemas/Message'
+                $ref: '#/components/schemas/Errors'
         '500':
           description: 'Internal server error'
           content:
             application/json:
               schema:
-                $ref: '#/components/schemas/Message'
+                $ref: '#/components/schemas/Errors'
   /sensors/groups:
     get:
       tags:
@@ -110,13 +110,72 @@ paths:
           content:
             application/json:
               schema:
-                $ref: '#/components/schemas/Message'
+                $ref: '#/components/schemas/Errors'
         '500':
           description: 'Internal server error'
           content:
             application/json:
               schema:
-                $ref: '#/components/schemas/Message'
+                $ref: '#/components/schemas/Errors'
+  /sensors:
+    get:
+      tags:
+      - Sensors
+      summary: 'Get all sensors that match the specified query parameters'
+      parameters:
+        - in: query
+          name: Enabled
+          schema:
+            type: boolean
+          description: 'Sensor status, default: true'
+        - in: query
+          name: Type
+          schema:
+            type: string
+          description: 'Sensor type, default: undefined'
+        - in: query
+          name: Name
+          schema:
+            type: string
+          description: 'Sensor name, default: undefined'
+        - in: query
+          name: MCU_ID
+          schema:
+            type: string
+          description: 'Sensor ID, default: undefined'
+        - in: query
+          name: Limit
+          schema:
+            type: integer
+      description: 'Numbers of results to get, default: 30'
+      responses:
+        '200':
+          description: 'All sensors matching the specified query parameters'
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/SensorsPayloadArray'
+        '400':
+          description: 'Bad request'
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Errors'
+        '401':
+          description: 'Unauthorized'
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Errors'
+        '500':
+          description: 'Internal server error'
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Errors'
+        
+
+
 
 
 
@@ -131,6 +190,13 @@ components:
           type: string
       required:
         - message
+    Errors:
+      type: object
+      properties:
+        errors:
+          type: array
+          items:
+            type: string
     RegisterPayload:
       type: object
       properties:
@@ -192,4 +258,8 @@ components:
           type: boolean
         Group:
           type: string
+    SensorsPayloadArray:
+      type: array
+      items:
+        $ref: '#/components/schemas/SensorsPayload'
 

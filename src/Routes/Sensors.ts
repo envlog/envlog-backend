@@ -50,6 +50,7 @@ sensorsRouter.get(
 				.json({ errors: errors.array().map(item => item.msg) });
 		try {
 			let { Limit, ...filters } = req.query;
+			!Limit && (Limit = '30');
 			if (filters.Group === 'null') filters.Group = null!;
 			const lowercaseFilters = Object.fromEntries(
 				Object.entries(filters).map(([key, item]) => {

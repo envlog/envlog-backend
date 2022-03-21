@@ -10,7 +10,7 @@ logoutRouter.post('/', requiresAuth, (req: Request, res: Response) => {
 	if (!req.session.username)
 		return res
 			.status(400)
-			.json({ message: 'Nessuna sessione da disconnettere' });
+			.json({ errors: ['Nessuna sessione da disconnettere'] });
 	req.session.destroy(err => {
 		if (err)
 			return res
