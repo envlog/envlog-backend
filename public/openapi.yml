@@ -93,6 +93,30 @@ paths:
             application/json:
               schema:
                 $ref: '#/components/schemas/Message'
+  /sensors/groups:
+    get:
+      tags:
+        - Sensors
+      summary: 'Get sensors by groups'
+      responses:
+        '200':
+          description: 'Get sensors list order by group'
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/SensorsPayload'
+        '400':
+          description: 'Bad request'
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Message'
+        '500':
+          description: 'Internal server error'
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Message'
 
 
 
@@ -153,3 +177,19 @@ components:
           format: email
         isAdmin:
           type: boolean
+    SensorsPayload:
+      type: object
+      properties:
+        _id:
+          type: string
+        MCU_ID:
+          type: string
+        NAME:
+          type: string
+        Type:
+          type: string
+        Enabled:
+          type: boolean
+        Group:
+          type: string
+
