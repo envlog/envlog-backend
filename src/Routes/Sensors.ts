@@ -56,7 +56,9 @@ sensorsRouter.get(
 				Object.entries(filters).map(([key, item]) => {
 					return [
 						key,
-						['Enabled', 'Group', 'Name'].includes(key) && item ? item.toLowerCase() : item,
+						['Enabled', 'Group', 'Name'].includes(key) && item
+							? item.toLowerCase()
+							: item,
 					];
 				})
 			);
@@ -95,7 +97,9 @@ sensorsRouter.get(
 		try {
 			let { Group } = req.params;
 			Group = Group.toLowerCase();
-			const sensors = await Sensor.find({ Group: Group === 'null' ? null : Group }).sort({ Enabled: -1 });
+			const sensors = await Sensor.find({
+				Group: Group === 'null' ? null : Group,
+			}).sort({ Enabled: -1 });
 			return res.status(200).json(sensors);
 		} catch (error: any) {
 			return res.status(500).json({ errors: [error] });
@@ -127,7 +131,6 @@ sensorsRouter.get(
 			const sensor = await Sensor.findOne({ $and: [{ MCU_ID }, { Type }] });
 			if (sensor) {
 				let batteryObject: BatteryData | undefined;
-
 				let lastBatteryData: SensorSchema | undefined = getLastInBuffer(
 					MCU_ID,
 					'Battery'
@@ -272,7 +275,10 @@ sensorsRouter.put(
 		req: Request<
 			{ MCU_ID: string },
 			{},
-			{ Enabled: boolean | undefined; Group: string | undefined | null }
+			{
+				Enabled: string | boolean | undefined;
+				Group: string | undefined | null;
+			}
 		>,
 		res: Response
 	) => {
@@ -285,6 +291,7 @@ sensorsRouter.put(
 			const { MCU_ID } = req.params;
 			let { Enabled, Group } = req.body;
 			Group = Group?.toLowerCase();
+			typeof Enabled === 'string' && Enabled?.toLowerCase();
 			if (Group === 'null') Group = null;
 			const sensor = await Sensor.findOne({ MCU_ID });
 			if (!sensor)
@@ -298,7 +305,11 @@ sensorsRouter.put(
 			await loadSensorsCollection();
 			return res
 				.status(200)
-				.json({ msg: `${modifiedCount} sensori aggiornati con successo!` });
+				.json({
+					msg: `${modifiedCount} ${
+						modifiedCount === 1 ? 'sensore aggiornato' : 'sensori aggiornati'
+					} con successo!`,
+				});
 		} catch (error: any) {
 			return res.status(500).json({ errors: [error] });
 		}
@@ -345,7 +356,7 @@ sensorsRouter.put(
 			const { MCU_ID, Type } = req.params;
 			let { Name, Enabled, Group } = req.body;
 			Name = Name?.toLowerCase();
-			Enabled = Enabled?.toLowerCase();
+			typeof Enabled === 'string' && Enabled?.toLowerCase();
 			Group = Group?.toLowerCase();
 			const sensor = await Sensor.findOne({ $and: [{ MCU_ID }, { Type }] });
 			if (!sensor)
@@ -431,9 +442,12 @@ sensorsRouter.delete(
 				return res.status(404).json({ errors: ['ID sensore non trovato!'] });
 			const { deletedCount } = await Sensor.deleteMany({ MCU_ID });
 			await loadSensorsCollection();
-			return res
-				.status(200)
-				.json({ msg: `${deletedCount} ${ deletedCount === 1 ? 'sensore cancellato!' : 'sensori cancellati!'}`, sensors });
+			return res.status(200).json({
+				msg: `${deletedCount} ${
+					deletedCount === 1 ? 'sensore cancellato!' : 'sensori cancellati!'
+				}`,
+				sensors,
+			});
 		} catch (error: any) {
 			return res.status(500).json({ errors: [error] });
 		}
