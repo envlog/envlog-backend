@@ -50,7 +50,7 @@ sensorsRouter.get(
 				.json({ errors: errors.array().map(item => item.msg) });
 		try {
 			let { Limit, ...filters } = req.query;
-			!Limit && (Limit = '30');
+			Limit ?? (Limit = '30');
 			if (filters.Group === 'null') filters.Group = null!;
 			const lowercaseFilters = Object.fromEntries(
 				Object.entries(filters).map(([key, item]) => {
@@ -208,7 +208,7 @@ sensorsRouter.post(
 				MCU_ID: string;
 				Name: string | undefined;
 				Type: string;
-				Enabled: string | undefined;
+				Enabled: string | boolean | undefined;
 				Group: string | undefined | null;
 			}
 		>,
@@ -226,7 +226,7 @@ sensorsRouter.post(
 			if (!Group) Group = null;
 			Group = Group ? Group.toLowerCase() : Group;
 			Name = Name.toLowerCase();
-			Enabled = Enabled?.toLowerCase();
+			typeof Enabled === 'string' && (Enabled = Enabled?.toLowerCase());
 			const sensor = await Sensor.findOne({
 				$or: [{ Name }, { $and: [{ MCU_ID }, { Type }] }],
 			});
@@ -241,7 +241,7 @@ sensorsRouter.post(
 				MCU_ID,
 				Name,
 				Type,
-				Enabled: Enabled ? Enabled : true,
+				Enabled: Enabled !== undefined ? Enabled : true,
 				Group,
 			});
 			await newSensor.save();

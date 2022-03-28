@@ -126,7 +126,7 @@ paths:
   /sensors:
     get:
       tags:
-      - Sensors
+        - Sensors
       summary: 'Get all sensors that match the specified query parameters'
       parameters:
         - in: query
@@ -153,7 +153,7 @@ paths:
           name: Limit
           schema:
             type: integer
-      description: 'Numbers of results to get, default: 30'
+          description: 'Numbers of results to get, default: 30'
       responses:
         '200':
           description: 'All sensors matching the specified query parameters'
@@ -252,6 +252,18 @@ paths:
             application/json:
               schema:
                 $ref: '#/components/schemas/Errors'
+        '404':
+          description: 'Not Found'
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Errors'
+        '409':
+          description: 'Conflict'
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Errors'
         '500':
           description: 'Internal server error'
           content:
@@ -272,6 +284,41 @@ paths:
         schema:
           type: string
         description: 'Sensor Type'
+    get:
+      tags:
+        - Sensors
+      summary: 'Get sensor with given MCU_ID and Type'
+      responses:
+        '200':
+          description: 'Sensor matching MCU_ID and Type'
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/SensorsPayload'
+        '400':
+          description: 'Bad request'
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Errors'
+        '401':
+          description: 'Unauthorized'
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Errors'
+        '404':
+          description: 'Not Found'
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Errors'
+        '500':
+          description: 'Internal server error'
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Errors'
     put:
       tags:
         - Sensors
@@ -300,16 +347,18 @@ paths:
             application/json:
               schema:
                 $ref: '#/components/schemas/Errors'
+        '404':
+          description: 'Not Found'
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Errors'
         '500':
           description: 'Internal server error'
           content:
             application/json:
               schema:
                 $ref: '#/components/schemas/Errors'
-  
-
-
-
 
 components:
   schemas:
@@ -338,7 +387,7 @@ components:
         password:
           type: string
         passwordConfirmation:
-          type: string 
+          type: string
       required:
         - username
         - email
@@ -380,7 +429,7 @@ components:
           type: string
         MCU_ID:
           type: string
-        NAME:
+        Name:
           type: string
         Type:
           type: string
@@ -388,6 +437,27 @@ components:
           type: boolean
         Group:
           type: string
+    NewSensorPayload:
+      type: object
+      properties:
+        MCU_ID:
+          type: string
+          required: true
+        Name:
+          type: string
+          required: false
+          default: null
+        Type:
+          type: string
+          required: true
+        Enabled:
+          type: boolean
+          required: false
+          default: true
+        Group:
+          type: string
+          required: false
+          default: null
     SensorsPayloadArray:
       type: array
       items:
