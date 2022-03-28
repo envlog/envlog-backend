@@ -435,6 +435,54 @@ paths:
             application/json:
               schema:
                 $ref: '#/components/schemas/Errors'
+    delete:
+      tags:
+        - Sensors
+      summary: 'Delete sensor with given MCU_ID and Type'
+      parameters:
+      - in: path
+        name: MCU_ID
+        required: true
+        schema:
+          type: string
+        description: 'Sensor MCU_ID'
+      - in: path
+        name: Type
+        required: true
+        schema:
+          type: string
+        description: 'Sensor Type' 
+      responses:
+        '200':
+          description: 'Returns success message if deleted'
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Message'
+        '400':
+          description: 'Bad request'
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Errors'
+        '401':
+          description: 'Unauthorized'
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Errors'
+        '404':
+          description: 'Not Found'
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Errors'
+        '500':
+          description: 'Internal server error'
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Errors' 
 
 components:
   schemas:
