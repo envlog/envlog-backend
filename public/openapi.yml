@@ -97,16 +97,22 @@ paths:
     get:
       tags:
         - Sensors
-      summary: 'Get sensors by groups'
+      summary: 'Get all distinct groups'
       responses:
         '200':
-          description: 'Get sensors list order by group'
+          description: ''
           content:
             application/json:
               schema:
-                $ref: '#/components/schemas/SensorsPayload'
+                $ref: '#/components/schemas/GroupsPayload'
         '400':
           description: 'Bad request'
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Errors'
+        '401':
+          description: 'Unauthorized'
           content:
             application/json:
               schema:
@@ -173,10 +179,134 @@ paths:
             application/json:
               schema:
                 $ref: '#/components/schemas/Errors'
-        
-
-
-
+  /sensors/groups/{Group}:
+    parameters:
+      - in: path
+        name: Group
+        required: true
+        schema:
+          type: string
+        description: 'Group name'
+    get:
+      tags:
+        - Sensors
+      summary: Show sensors with given group name
+      responses:
+        '200':
+          description: 'Groups found'
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/SensorsPayloadArray'
+        '400':
+          description: 'Bad request'
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Errors'
+        '401':
+          description: 'Unauthorized'
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Errors'
+        '500':
+          description: 'Internal server error'
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Errors'
+  /sensors/{MCU_ID}:
+    parameters:
+      - in: path
+        name: MCU_ID
+        required: true
+        schema:
+          type: string
+        description: 'Sensor id'
+    put:
+      tags:
+        - Sensors
+      summary: Update sensor's state and group matching given id
+      requestBody:
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/UpdateSensorPayload'
+      responses:
+        '200':
+          description: 'Shows the number of sensors updated'
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Message'
+        '400':
+          description: 'Bad request'
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Errors'
+        '401':
+          description: 'Unauthorized'
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Errors'
+        '500':
+          description: 'Internal server error'
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Errors'
+  /sensors/{MCU_ID}/{Type}:
+    parameters:
+      - in: path
+        name: MCU_ID
+        required: true
+        schema:
+          type: string
+        description: 'Sensor MCU_ID'
+      - in: path
+        name: Type
+        required: true
+        schema:
+          type: string
+        description: 'Sensor Type'
+    put:
+      tags:
+        - Sensors
+      summary: Update sensor state, name and group matching given id and type
+      requestBody:
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/UpdateSensorTypePayload'
+      responses:
+        '200':
+          description: 'Shows updated infos'
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/UpdateSensorTypeResponse'
+        '400':
+          description: 'Bad request'
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Errors'
+        '401':
+          description: 'Unauthorized'
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Errors'
+        '500':
+          description: 'Internal server error'
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Errors'
+  
 
 
 
@@ -262,4 +392,45 @@ components:
       type: array
       items:
         $ref: '#/components/schemas/SensorsPayload'
-
+    GroupsPayload:
+      type: array
+      items:
+        - type: string
+    GroupsPayloadArray:
+      type: array
+      items:
+        $ref: '#/components/schemas/UserResponse'
+    UpdateSensorPayload:
+      type: object
+      properties:
+        Enabled:
+          type: boolean
+        Group:
+          type: string
+      required:
+        - Enabled
+        - Group
+    UpdateSensorTypePayload:
+      type: object
+      properties:
+        Name:
+          type: string
+        Enabled:
+          type: boolean
+        Group:
+          type: string
+      required:
+        - Name
+        - Enabled
+        - Group
+    UpdateSensorTypeResponse:
+      type: object
+      properties:
+        msg:
+          type: string
+        Name:
+          type: string
+        Enabled:
+          type: boolean
+        Group:
+          type: string
