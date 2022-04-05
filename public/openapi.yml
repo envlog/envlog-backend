@@ -483,6 +483,65 @@ paths:
             application/json:
               schema:
                 $ref: '#/components/schemas/Errors' 
+  /history/{MCU_ID}/{Type}:
+    parameters:
+      - in: path
+        name: MCU_ID
+        required: true
+        schema:
+          type: string
+        description: 'Sensor MCU_ID'
+      - in: path
+        name: Type
+        required: true
+        schema:
+          type: string
+        description: 'Sensor Type' 
+      - in: query
+        name: Limit
+        required: false
+        schema:
+          type: number
+        description: 'Number of results to return'
+        default: 50
+    get:
+      tags: 
+        - Sensor Data History
+      summary: 'Return data history for a sensor given its MCU_ID and Type'
+      responses:
+        '200':
+          description: 'Returns success message if deleted'
+          content:
+            application/json:
+              schema:
+                type: array
+                items:
+                  type: object
+        '400':
+          description: 'Bad request'
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Errors'
+        '401':
+          description: 'Unauthorized'
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Errors'
+        '404':
+          description: 'Not Found'
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Errors'
+        '500':
+          description: 'Internal server error'
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Errors' 
+        
 
 components:
   schemas:

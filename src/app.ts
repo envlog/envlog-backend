@@ -30,7 +30,7 @@ app.use('/auth/login', loginRouter);
 app.use('/auth/register', registerRouter);
 app.use('/auth/logout', logoutRouter);
 app.use('/sensors', sensorsRouter);
-app.use('/sensorsdatahistory', sensorsDataRouter);
+app.use('/history', sensorsDataRouter);
 
 app.listen(process.env.SERVER_PORT, () =>
 	console.log(`[SERVER] Server online on port ${process.env.SERVER_PORT}.`)
