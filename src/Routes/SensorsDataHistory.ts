@@ -3,6 +3,7 @@ import { validationResult, param, query } from 'express-validator';
 import session from '../Connections/session';
 import { requiresAuth } from '../Middlewares/auth';
 import { validNumberIfExists } from '../Middlewares/validation';
+import Sensor from '../Models/sensors.model';
 import SensorData from '../Models/sensor_data.model';
 
 const sensorsDataRouter = express.Router();
@@ -11,8 +12,16 @@ sensorsDataRouter.use(session);
 sensorsDataRouter.get(
 	'/:MCU_ID/:Type',
 	requiresAuth,
-	param('MCU_ID').exists().withMessage('Fornire un ID!').isLength({ min: 1 }).withMessage('ID non valido!'),
-	param('Type').exists().withMessage('Fornire un tipo!').isLength({ min: 1 }).withMessage('Tipo non valido!'),
+	param('MCU_ID')
+		.exists()
+		.withMessage('Fornire un ID!')
+		.isLength({ min: 1 })
+		.withMessage('ID non valido!'),
+	param('Type')
+		.exists()
+		.withMessage('Fornire un tipo!')
+		.isLength({ min: 1 })
+		.withMessage('Tipo non valido!'),
 	query('Limit').custom(validNumberIfExists).withMessage('Limite non valido!'),
 	async (
 		req: Request<
@@ -31,12 +40,13 @@ sensorsDataRouter.get(
 		try {
 			const { MCU_ID, Type } = req.params;
 			let { Limit } = req.query;
-			if (!Limit) Limit = '10';
+			if (!Limit) Limit = '50';
+			const sensor = await Sensor.findOne({ $and: [{ MCU_ID }, { Type }] });
+			if (!sensor)
+				return res.status(404).json({ errors: ['Sensore non trovato!'] });
 			const data = await SensorData.find({ $and: [{ MCU_ID }, { Type }] })
 				.limit(Number(Limit))
 				.sort({ Received: -1 });
-			if (!data)
-				return res.status(404).json({ errors: ['Sensore non trovato!'] });
 			return res.status(200).json(data);
 		} catch (error) {
 			return res.status(500).json({ errors: [error] });

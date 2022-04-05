@@ -1,0 +1,689 @@
+openapi: 3.0.0
+info:
+  title: 'Envlog Project CRUD'
+  description: 'Envlog Project Application API'
+  version: 1.0.0
+
+servers:
+  - url: 'http://localhost:3001/'
+    description: 'Local development'
+  #- url: 'https://ymlwbdaex2.execute-api.eu-central-1.amazonaws.com/dev/' indirizzo di stage dopo deploy ? boooo
+  #  description: 'Stage'
+
+paths:
+  /auth/register:
+    post:
+      tags:
+        - Auth
+      summary: 'Register'
+      requestBody:
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/RegisterPayload'
+      responses:
+        '201':
+          description: 'Account created'
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/RegisterResponse'
+        '400':
+          description: 'Bad request'
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Errors'
+        '500':
+          description: 'Internal server error'
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Errors'
+  /auth/login:
+    post:
+      tags:
+        - Auth
+      summary: 'Login'
+      requestBody:
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/LoginPayload'
+      responses:
+        '200':
+          description: 'Login succesful'
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/LoginResponse'
+        '400':
+          description: 'Bad request'
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Errors'
+        '500':
+          description: 'Internal server error'
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Errors'
+  /auth/logout:
+    post:
+      tags:
+        - Auth
+      summary: 'Logout'
+      responses:
+        '200':
+          description: 'Logout succesful'
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Message'
+        '400':
+          description: 'Bad request'
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Errors'
+        '500':
+          description: 'Internal server error'
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Errors'
+  /sensors/groups:
+    get:
+      tags:
+        - Sensors
+      summary: 'Get all distinct groups'
+      responses:
+        '200':
+          description: ''
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/GroupsPayload'
+        '400':
+          description: 'Bad request'
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Errors'
+        '401':
+          description: 'Unauthorized'
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Errors'
+        '500':
+          description: 'Internal server error'
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Errors'
+  /sensors:
+    get:
+      tags:
+        - Sensors
+      summary: 'Get all sensors that match the specified query parameters'
+      parameters:
+        - in: query
+          name: Enabled
+          schema:
+            type: boolean
+          description: 'Sensor status, default: true'
+        - in: query
+          name: Type
+          schema:
+            type: string
+          description: 'Sensor type, default: undefined'
+        - in: query
+          name: Name
+          schema:
+            type: string
+          description: 'Sensor name, default: undefined'
+        - in: query
+          name: MCU_ID
+          schema:
+            type: string
+          description: 'Sensor ID, default: undefined'
+        - in: query
+          name: Limit
+          schema:
+            type: integer
+          description: 'Numbers of results to get, default: 30'
+      responses:
+        '200':
+          description: 'All sensors matching the specified query parameters'
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/SensorsPayloadArray'
+        '400':
+          description: 'Bad request'
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Errors'
+        '401':
+          description: 'Unauthorized'
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Errors'
+        '500':
+          description: 'Internal server error'
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Errors'
+    post:
+      tags:
+        - Sensors
+      summary: 'Insert a new sensor'
+      requestBody:
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/NewSensorPayload'
+      responses:
+        '200':
+          description: 'Created'
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/SensorsPayload'
+        '400':
+          description: 'Bad request'
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Errors'
+        '401':
+          description: 'Unauthorized'
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Errors'
+        '409':
+          description: 'Conflict'
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Errors'
+        '500':
+          description: 'Internal server error'
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Errors'
+
+  /sensors/groups/{Group}:
+    parameters:
+      - in: path
+        name: Group
+        required: true
+        schema:
+          type: string
+        description: 'Group name'
+    get:
+      tags:
+        - Sensors
+      summary: Show sensors with given group name
+      responses:
+        '200':
+          description: 'Groups found'
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/SensorsPayloadArray'
+        '400':
+          description: 'Bad request'
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Errors'
+        '401':
+          description: 'Unauthorized'
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Errors'
+        '500':
+          description: 'Internal server error'
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Errors'
+  /sensors/{MCU_ID}:
+    parameters:
+      - in: path
+        name: MCU_ID
+        required: true
+        schema:
+          type: string
+        description: 'Sensor id'
+    put:
+      tags:
+        - Sensors
+      summary: Update sensor's state and group matching given id
+      requestBody:
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/UpdateSensorPayload'
+      responses:
+        '200':
+          description: 'Shows the number of sensors updated'
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Message'
+        '400':
+          description: 'Bad request'
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Errors'
+        '401':
+          description: 'Unauthorized'
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Errors'
+        '404':
+          description: 'Not Found'
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Errors'
+        '409':
+          description: 'Conflict'
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Errors'
+        '500':
+          description: 'Internal server error'
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Errors'
+    delete:
+      tags:
+        - Sensors
+      summary: 'Delete all sensors given MCU_ID'
+      responses:
+        '200':
+          description: 'Returns all deleted sensors'
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/SensorsPayloadArray'
+        '400':
+          description: 'Bad request'
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Errors'
+        '401':
+          description: 'Unauthorized'
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Errors'
+        '404':
+          description: 'Not Found'
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Errors'
+        '500':
+          description: 'Internal server error'
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Errors'
+  /sensors/{MCU_ID}/{Type}:
+    parameters:
+      - in: path
+        name: MCU_ID
+        required: true
+        schema:
+          type: string
+        description: 'Sensor MCU_ID'
+      - in: path
+        name: Type
+        required: true
+        schema:
+          type: string
+        description: 'Sensor Type'
+    get:
+      tags:
+        - Sensors
+      summary: 'Get sensor with given MCU_ID and Type'
+      responses:
+        '200':
+          description: 'Sensor matching MCU_ID and Type'
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/SensorsPayload'
+        '400':
+          description: 'Bad request'
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Errors'
+        '401':
+          description: 'Unauthorized'
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Errors'
+        '404':
+          description: 'Not Found'
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Errors'
+        '500':
+          description: 'Internal server error'
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Errors'
+    put:
+      tags:
+        - Sensors
+      summary: Update sensor state, name and group matching given id and type
+      requestBody:
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/UpdateSensorTypePayload'
+      responses:
+        '200':
+          description: 'Shows updated infos'
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/UpdateSensorTypeResponse'
+        '400':
+          description: 'Bad request'
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Errors'
+        '401':
+          description: 'Unauthorized'
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Errors'
+        '404':
+          description: 'Not Found'
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Errors'
+        '500':
+          description: 'Internal server error'
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Errors'
+    delete:
+      tags:
+        - Sensors
+      summary: 'Delete sensor with given MCU_ID and Type'
+      parameters:
+      - in: path
+        name: MCU_ID
+        required: true
+        schema:
+          type: string
+        description: 'Sensor MCU_ID'
+      - in: path
+        name: Type
+        required: true
+        schema:
+          type: string
+        description: 'Sensor Type' 
+      responses:
+        '200':
+          description: 'Returns success message if deleted'
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Message'
+        '400':
+          description: 'Bad request'
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Errors'
+        '401':
+          description: 'Unauthorized'
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Errors'
+        '404':
+          description: 'Not Found'
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Errors'
+        '500':
+          description: 'Internal server error'
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Errors' 
+  /history/{MCU_ID}/{Type}:
+    parameters:
+      - in: path
+        name: MCU_ID
+        required: true
+        schema:
+          type: string
+        description: 'Sensor MCU_ID'
+      - in: path
+        name: Type
+        required: true
+        schema:
+          type: string
+        description: 'Sensor Type' 
+      - in: query
+        name: Limit
+        required: false
+        schema:
+          type: number
+        description: 'Number of results to return'
+        default: 50
+    get:
+      tags: 
+        - Sensor Data History
+      summary: 'Return data history for a sensor given its MCU_ID and Type'
+      responses:
+        '200':
+          description: 'Returns success message if deleted'
+          content:
+            application/json:
+              schema:
+                type: array
+                items:
+                  type: object
+        '400':
+          description: 'Bad request'
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Errors'
+        '401':
+          description: 'Unauthorized'
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Errors'
+        '404':
+          description: 'Not Found'
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Errors'
+        '500':
+          description: 'Internal server error'
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Errors' 
+        
+
+components:
+  schemas:
+    Message:
+      type: object
+      properties:
+        message:
+          type: string
+      required:
+        - message
+    Errors:
+      type: object
+      properties:
+        errors:
+          type: array
+          items:
+            type: string
+    RegisterPayload:
+      type: object
+      properties:
+        username:
+          type: string
+        email:
+          type: string
+          format: email
+        password:
+          type: string
+        passwordConfirmation:
+          type: string
+      required:
+        - username
+        - email
+        - password
+        - passwordConfirmation
+    RegisterResponse:
+      description: 'Register response'
+      type: object
+      properties:
+        username:
+          type: string
+        email:
+          type: string
+    LoginPayload:
+      type: object
+      properties:
+        email:
+          type: string
+          format: email
+        password:
+          type: string
+      required:
+        - email
+        - password
+    LoginResponse:
+      type: object
+      properties:
+        username:
+          type: string
+        email:
+          type: string
+          format: email
+        isAdmin:
+          type: boolean
+    SensorsPayload:
+      type: object
+      properties:
+        _id:
+          type: string
+        MCU_ID:
+          type: string
+        Name:
+          type: string
+        Type:
+          type: string
+        Enabled:
+          type: boolean
+        Group:
+          type: string
+    NewSensorPayload:
+      type: object
+      properties:
+        MCU_ID:
+          type: string
+          required: true
+        Name:
+          type: string
+          required: false
+          default: null
+        Type:
+          type: string
+          required: true
+        Enabled:
+          type: boolean
+          required: false
+          default: true
+        Group:
+          type: string
+          required: false
+          default: null
+    SensorsPayloadArray:
+      type: array
+      items:
+        $ref: '#/components/schemas/SensorsPayload'
+    GroupsPayload:
+      type: array
+      items:
+        - type: string
+    GroupsPayloadArray:
+      type: array
+      items:
+        $ref: '#/components/schemas/UserResponse'
+    UpdateSensorPayload:
+      type: object
+      properties:
+        Enabled:
+          type: boolean
+        Group:
+          type: string
+      required:
+        - Enabled
+        - Group
+    UpdateSensorTypePayload:
+      type: object
+      properties:
+        Name:
+          type: string
+        Enabled:
+          type: boolean
+        Group:
+          type: string
+      required:
+        - Name
+        - Enabled
+        - Group
+    UpdateSensorTypeResponse:
+      type: object
+      properties:
+        msg:
+          type: string
+        Name:
+          type: string
+        Enabled:
+          type: boolean
+        Group:
+          type: string
