@@ -1,13 +1,12 @@
 import mongoose from 'mongoose';
-import dotenv from 'dotenv';
 
-dotenv.config();
+const dbInit = () => {
+	const dbUrl =
+		process.env.ATLAS_URL ||
+		`mongodb://${process.env.DB_HOST}:${process.env.DB_PORT}/${process.env.DB_NAME}`;
+	mongoose.connect(dbUrl, error => error && console.log(error));
+	const db = mongoose.connection;
+	db.once('open', () => console.log(`[DATABASE] Connected to ${dbUrl}}.`));
+};
 
-const db_init = () => {
-    mongoose.connect(`mongodb://${process.env.DB_HOST}:${process.env.DB_PORT}/${process.env.DB_NAME}`);
-    const db = mongoose.connection;
-    db.on('error', (err: any) => console.log(err.message));
-    db.once('open', () => console.log("Connected to Database"));
-}
-
-export default db_init();
+export default dbInit;
