@@ -7,8 +7,8 @@ info:
 servers:
   - url: 'http://localhost:3001/'
     description: 'Local development'
-  #- url: 'https://ymlwbdaex2.execute-api.eu-central-1.amazonaws.com/dev/' indirizzo di stage dopo deploy ? boooo
-  #  description: 'Stage'
+  - url: 'https://envlog.herokuapp.com/'
+    description: 'Stage'
 
 paths:
   /auth/register:
