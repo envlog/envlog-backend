@@ -111,6 +111,47 @@ paths:
             application/json:
               schema:
                 $ref: '#/components/schemas/Errors' 
+  /auth/me/info:
+    post:
+      tags: 
+        - Auth
+      summary: 'Update user info'
+      requestBody:
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/UpdateUserInfoPayload'
+      responses:
+        '200':
+          description: 'Updated successfully'
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Message'
+        '400':
+          description: 'Bad request'
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Errors'
+        '401':
+          description: 'Unauthorized'
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Errors'
+        '409':
+          description: 'Conflict'
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Errors'
+        '500':
+          description: 'Internal server error'
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Errors'
   /sensors/groups:
     get:
       tags:
@@ -118,7 +159,7 @@ paths:
       summary: 'Get all distinct groups'
       responses:
         '200':
-          description: ''
+          description: 'All groups'
           content:
             application/json:
               schema:
@@ -716,3 +757,14 @@ components:
           type: boolean
         Group:
           type: string
+    UpdateUserInfoPayload:
+      type: object
+      properties:
+        username:
+          type: string
+          required: false
+          default: null
+        email:
+          type: string
+          required: false
+          default: null
