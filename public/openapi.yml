@@ -93,6 +93,24 @@ paths:
             application/json:
               schema:
                 $ref: '#/components/schemas/Errors'
+  /auth/me:
+    get:
+      tags:
+        - Auth
+      summary: 'Get user authenticated info' 
+      responses: 
+        '200':
+          description: 'User info'
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/UserInfo'  
+        '401':
+          description: 'Unauthorized'
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Errors' 
   /sensors/groups:
     get:
       tags:
@@ -584,6 +602,7 @@ components:
           type: string
         email:
           type: string
+          format: email
     LoginPayload:
       type: object
       properties:
@@ -605,6 +624,16 @@ components:
           format: email
         isAdmin:
           type: boolean
+    UserInfo:
+      type: object
+      properties:
+        Username:
+          type: string
+        Email:
+          type: string
+          format: email
+        IsAdmin:
+          type: string
     SensorsPayload:
       type: object
       properties:

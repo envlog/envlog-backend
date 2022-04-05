@@ -6,6 +6,7 @@ import session from '../Connections/session';
 import { passwordsMatch, requiresNoAuth } from '../Middlewares/auth';
 
 const registerRouter = express.Router();
+
 registerRouter.use(session);
 
 registerRouter.post(

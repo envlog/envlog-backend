@@ -15,6 +15,7 @@ import cors from 'cors';
 import sensorsDataRouter from './Routes/SensorsDataHistory';
 import swaggerUi from 'swagger-ui-express';
 import YAML from 'yamljs';
+import meRouter from './Routes/Me';
 
 const app = express();
 
@@ -29,6 +30,7 @@ app.use('/api-docs', swaggerUi.serve, swaggerUi.setup(swaggerDocument));
 app.use('/auth/login', loginRouter);
 app.use('/auth/register', registerRouter);
 app.use('/auth/logout', logoutRouter);
+app.use('/auth/me', meRouter)
 app.use('/sensors', sensorsRouter);
 app.use('/history', sensorsDataRouter);
 
