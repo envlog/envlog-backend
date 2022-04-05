@@ -43,7 +43,6 @@ loginRouter.post(
 				.status(200)
 				.json({ username: user.Username, email, isAdmin: user.IsAdmin });
 		} catch (error: any) {
-			console.log("entro qui")
 			return res.status(500).json({ errors: [error] });
 		}
 	}
