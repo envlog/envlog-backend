@@ -5,8 +5,6 @@ info:
   version: 1.0.0
 
 servers:
-  - url: 'http://localhost:3001/'
-    description: 'Local development'
   - url: 'https://envlog.herokuapp.com/'
     description: 'Stage'
 
