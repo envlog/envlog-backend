@@ -33,5 +33,5 @@ app.use('/sensors', sensorsRouter);
 app.use('/history', sensorsDataRouter);
 
 app.listen(process.env.PORT || process.env.SERVER_PORT, () =>
-	console.log(`[SERVER] Server online on port ${process.env.SERVER_PORT}.`)
+	console.log(`[SERVER] Server online on port ${process.env.PORT || process.env.SERVER_PORT}.`)
 );
