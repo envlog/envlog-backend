@@ -16,7 +16,7 @@ export const requiresAuth = (
 	res: Response,
 	next: NextFunction
 ) => {
-	//if (req.session && req.session.username)
+	if (req.session && req.session.username)
 	return next();
 
 	return res.status(401).json({ errors: ['Autenticazione richiesta!'] });

@@ -7,8 +7,8 @@ info:
 servers:
   - url: 'http://localhost:3001/'
     description: 'Local development'
-  #- url: 'https://ymlwbdaex2.execute-api.eu-central-1.amazonaws.com/dev/' indirizzo di stage dopo deploy ? boooo
-  #  description: 'Stage'
+  - url: 'https://envlog.herokuapp.com/'
+    description: 'Stage'
 
 paths:
   /auth/register:
@@ -93,6 +93,65 @@ paths:
             application/json:
               schema:
                 $ref: '#/components/schemas/Errors'
+  /auth/me:
+    get:
+      tags:
+        - Auth
+      summary: 'Get user authenticated info' 
+      responses: 
+        '200':
+          description: 'User info'
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/UserInfo'  
+        '401':
+          description: 'Unauthorized'
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Errors' 
+  /auth/me/info:
+    post:
+      tags: 
+        - Auth
+      summary: 'Update user info'
+      requestBody:
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/UpdateUserInfoPayload'
+      responses:
+        '200':
+          description: 'Updated successfully'
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Message'
+        '400':
+          description: 'Bad request'
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Errors'
+        '401':
+          description: 'Unauthorized'
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Errors'
+        '409':
+          description: 'Conflict'
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Errors'
+        '500':
+          description: 'Internal server error'
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Errors'
   /sensors/groups:
     get:
       tags:
@@ -100,7 +159,7 @@ paths:
       summary: 'Get all distinct groups'
       responses:
         '200':
-          description: ''
+          description: 'All groups'
           content:
             application/json:
               schema:
@@ -584,6 +643,7 @@ components:
           type: string
         email:
           type: string
+          format: email
     LoginPayload:
       type: object
       properties:
@@ -605,6 +665,16 @@ components:
           format: email
         isAdmin:
           type: boolean
+    UserInfo:
+      type: object
+      properties:
+        Username:
+          type: string
+        Email:
+          type: string
+          format: email
+        IsAdmin:
+          type: string
     SensorsPayload:
       type: object
       properties:
@@ -687,3 +757,14 @@ components:
           type: boolean
         Group:
           type: string
+    UpdateUserInfoPayload:
+      type: object
+      properties:
+        username:
+          type: string
+          required: false
+          default: null
+        email:
+          type: string
+          required: false
+          default: null

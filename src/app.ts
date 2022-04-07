@@ -15,6 +15,7 @@ import cors from 'cors';
 import sensorsDataRouter from './Routes/SensorsDataHistory';
 import swaggerUi from 'swagger-ui-express';
 import YAML from 'yamljs';
+import meRouter from './Routes/Me';
 
 const app = express();
 
@@ -29,9 +30,12 @@ app.use('/api-docs', swaggerUi.serve, swaggerUi.setup(swaggerDocument));
 app.use('/auth/login', loginRouter);
 app.use('/auth/register', registerRouter);
 app.use('/auth/logout', logoutRouter);
+app.use('/auth/me', meRouter)
 app.use('/sensors', sensorsRouter);
 app.use('/history', sensorsDataRouter);
 
-app.listen(process.env.PORT || process.env.SERVER_PORT, () =>
-	console.log(`[SERVER] Server online on port ${process.env.PORT || process.env.SERVER_PORT}.`)
+const serverPort = process.env.PORT || process.env.SERVER_PORT;
+
+app.listen(serverPort, () =>
+	console.log(`[SERVER] Server online on port ${serverPort}.`)
 );
